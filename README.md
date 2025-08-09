@@ -28,13 +28,16 @@ Supercharge any MCP-compatible AI agent with undetectable, real-browser automati
 ## 🎥 **See It In Action**
 
 <div align="center">
-<video width="800" height="450" controls preload="metadata" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-  <source src="media/Showcase Stealth Browser Mcp.mp4" type="video/mp4">
-  <p>Your browser doesn't support HTML5 video. <a href="media/Showcase Stealth Browser Mcp.mp4">Download the video</a> to see Stealth Browser MCP in action.</p>
-</video>
+<a href="media/showcase-demo-full.gif" target="_blank">
+  <img src="media/showcase-demo-full.gif" alt="Stealth Browser MCP Demo" width="800" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer;">
+</a>
+<br>
+<em>👆 Click to view fullscreen</em>
 </div>
 
 *🎯 **Watch**: Stealth Browser MCP bypassing Cloudflare, cloning UI elements, and intercepting network traffic — all through simple AI chat commands*
+
+> 📹 **Full HD Video**: [Download complete demo (MP4)](media/Showcase%20Stealth%20Browser%20Mcp.mp4) for full resolution
 
 ---
 
