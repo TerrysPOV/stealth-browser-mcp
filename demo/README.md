@@ -26,7 +26,7 @@
 
 - [ ] "Stealth vs Playwright: Cloudflare Challenge"
 - [ ] "Stealth vs Selenium: Banking Portal Test" 
-- [ ] "93 Tools in 3 Minutes: Full Feature Demo"
+- [ ] "88 Tools in 3 Minutes: Full Feature Demo"
 - [ ] "AI Agent Clones Airbnb Homepage in Real-Time"
 
 ## 🎯 **Use Case Demos**

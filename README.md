@@ -18,12 +18,23 @@ Supercharge any MCP-compatible AI agent with undetectable, real-browser automati
 [![Issues](https://img.shields.io/github/issues/vibheksoni/stealth-browser-mcp?style=flat-square)](https://github.com/vibheksoni/stealth-browser-mcp/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/7ETmqgTY6H)
-[![Tools](https://img.shields.io/badge/Tools-105-orange?style=flat-square)](#-toolbox)
+[![Tools](https://img.shields.io/badge/Tools-88-orange?style=flat-square)](#-toolbox)
 [![Success Rate](https://img.shields.io/badge/Success%20Rate-98.7%25-success?style=flat-square)](#-stealth-vs-playwright-mcp)
 [![Cloudflare Bypass](https://img.shields.io/badge/Cloudflare-Bypass-red?style=flat-square)](#-why-developers-star-this)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
 > Give your AI agent real browser superpowers: access Cloudflare sites, extract any UI, and intercept network traffic — from inside your chat.
+
+## 🎥 **See It In Action**
+
+<div align="center">
+<video width="800" height="450" controls preload="metadata" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+  <source src="media/Showcase Stealth Browser Mcp.mp4" type="video/mp4">
+  <p>Your browser doesn't support HTML5 video. <a href="media/Showcase Stealth Browser Mcp.mp4">Download the video</a> to see Stealth Browser MCP in action.</p>
+</video>
+</div>
+
+*🎯 **Watch**: Stealth Browser MCP bypassing Cloudflare, cloning UI elements, and intercepting network traffic — all through simple AI chat commands*
 
 ---
 
@@ -33,7 +44,7 @@ Supercharge any MCP-compatible AI agent with undetectable, real-browser automati
 - 🏆 [Hall of Fame](HALL_OF_FAME.md) - Impossible automations made possible
 - 🥊 [Stealth vs Others](COMPARISON.md) - Why we dominate the competition  
 - 🔥 [Viral Examples](examples/claude_prompts.md) - Copy & paste prompts that blow minds
-- 🧰 [105 Tools](#toolbox) - Complete arsenal of browser automation
+- 🧰 [88 Tools](#toolbox) - Complete arsenal of browser automation
 - 🎥 [Live Demos](demo/) - See it bypass what others can't
 - 🤝 [Contributing](#contributing) & 💬 [Discord](https://discord.gg/7ETmqgTY6H)
 
@@ -115,7 +126,7 @@ Restart your MCP client and ask your agent:
 - **Full network debugging through AI chat — see every request, response, header, and payload**
 - **Your AI agent becomes a network detective — no more guessing what APIs are being called**
 - Clean MCP integration — no custom brokers or wrappers needed
-- 105 focused tools designed for real-world workflows
+- 88 focused tools designed for real-world workflows
 
 > Built on [nodriver](https://github.com/ultrafunkamsterdam/nodriver) + Chrome DevTools Protocol + FastMCP
 
@@ -132,7 +143,7 @@ Restart your MCP client and ask your agent:
 | Network debugging | **AI agent sees all requests/responses** | Basic |
 | API reverse engineering | **Full payload inspection via chat** | Manual tools only |
 | Dynamic Hook System | **AI writes Python functions for real-time request processing** | Not available |
-| Tooling | 105 | ~20 |
+| Tooling | 88 | ~20 |
 
 Sites users care about: LinkedIn • Instagram • Twitter/X • Amazon • Banking • Government portals • Cloudflare APIs • Nike SNKRS • Ticketmaster • Supreme
 

@@ -33,5 +33,5 @@ startCommand:
     timeout: 30000
 
 env:
-  NODE_ENV: "production"
   PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
