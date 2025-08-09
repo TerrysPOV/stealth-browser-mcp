@@ -4,7 +4,7 @@
 
 # Stealth Browser MCP
 
-**🚀 The ONLY browser automation that bypasses Cloudflare, banking portals, and social media blocks**
+**🚀 The ONLY browser automation that bypasses Cloudflare, antibots, and social media blocks**
 
 </div>
 
