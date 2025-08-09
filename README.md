@@ -52,60 +52,89 @@ Supercharge any MCP-compatible AI agent with undetectable, real-browser automati
 
 ## Quickstart (60 seconds)
 
-### Option 1: FastMCP CLI (Recommended)
+### ✅ **Recommended Setup (Creator's Tested Method)**
 ```bash
-# Install FastMCP CLI
-pip install fastmcp
-
-# Clone and setup
+# 1. Clone the repository
 git clone https://github.com/vibheksoni/stealth-browser-mcp.git
 cd stealth-browser-mcp
 
-# Auto-install with dependencies into Claude Desktop/Code/Cursor
+# 2. Create virtual environment
+python -m venv venv
+
+# 3. Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+
+# 4. Install dependencies
+pip install -r requirements.txt
+
+# 5. Add to Claude Code using CLI
+```
+
+**Windows:**
+```bash
+claude mcp add-json stealth-browser-mcp "{\"type\":\"stdio\",\"command\":\"C:\\path\\to\\stealth-browser-mcp\\venv\\Scripts\\python.exe\",\"args\":[\"C:\\path\\to\\stealth-browser-mcp\\src\\server.py\"]}"
+```
+
+**Mac/Linux:**
+```bash
+claude mcp add-json stealth-browser-mcp '{
+  "type": "stdio",
+  "command": "/path/to/stealth-browser-mcp/venv/bin/python",
+  "args": [
+    "/path/to/stealth-browser-mcp/src/server.py"
+  ]
+}'
+```
+
+> **💡 Replace `/path/to/stealth-browser-mcp/` with your actual project path**
+
+---
+
+### ⚠️ **Alternative: FastMCP CLI (Untested by Creator)**
+
+*These methods should theoretically work but have not been tested by the creator. Use at your own risk.*
+
+```bash
+# Install FastMCP
+pip install fastmcp
+
+# Auto-install (untested)
 fastmcp install claude-desktop src/server.py --with-requirements requirements.txt
 # OR
-fastmcp install claude-code src/server.py --with-requirements requirements.txt
+fastmcp install claude-code src/server.py --with-requirements requirements.txt  
 # OR
 fastmcp install cursor src/server.py --with-requirements requirements.txt
 ```
 
-### Option 2: Manual Installation
-```bash
-git clone https://github.com/vibheksoni/stealth-browser-mcp.git
-cd stealth-browser-mcp
-python -m venv venv
+---
 
-# Windows
-venv\Scripts\activate
-pip install -r requirements.txt
+### Alternative: Manual Configuration (If Claude CLI not available)
 
-# Mac/Linux
-source venv/bin/activate
-pip install -r requirements.txt
-```
+If you don't have Claude Code CLI, manually add to your MCP client configuration:
 
-Add to your MCP client configuration:
-
-**Windows**
+**Claude Desktop - Windows** (`%APPDATA%\Claude\claude_desktop_config.json`)
 ```json
 {
   "mcpServers": {
     "stealth-browser": {
-      "command": "C:\\path\\to\\venv\\Scripts\\python.exe",
-      "args": ["C:\\path\\to\\src\\server.py"],
+      "command": "C:\\path\\to\\stealth-browser-mcp\\venv\\Scripts\\python.exe",
+      "args": ["C:\\path\\to\\stealth-browser-mcp\\src\\server.py"],
       "env": {}
     }
   }
 }
 ```
 
-**Mac/Linux**
+**Claude Desktop - Mac/Linux** (`~/Library/Application Support/Claude/claude_desktop_config.json`)
 ```json
 {
   "mcpServers": {
     "stealth-browser": {
-      "command": "/path/to/venv/bin/python",
-      "args": ["/path/to/src/server.py"],
+      "command": "/path/to/stealth-browser-mcp/venv/bin/python",
+      "args": ["/path/to/stealth-browser-mcp/src/server.py"],
       "env": {}
     }
   }
@@ -116,6 +145,28 @@ Add to your MCP client configuration:
 Restart your MCP client and ask your agent:
 
 > "Use stealth-browser to navigate to https://example.com and extract the pricing table."
+
+## 🚨 **Common Installation Issues**
+
+**❌ ERROR: Could not find a version that satisfies the requirement [package]**
+- **Solution**: Make sure your virtual environment is activated: `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (Mac/Linux)
+- **Alternative**: Try upgrading pip first: `pip install --upgrade pip`
+
+**❌ Module not found errors when running server**
+- **Solution**: Ensure virtual environment is activated before running
+- **Check paths**: Make sure the Claude CLI command uses the correct venv path
+
+**❌ Chrome/Browser issues**
+- **Solution**: The server will automatically download Chrome when first run
+- **No manual Chrome installation needed**
+
+**❌ "claude mcp add-json" command not found**
+- **Solution**: Make sure you have Claude Code CLI installed
+- **Alternative**: Use manual configuration method above
+
+**❌ Path errors in Windows**
+- **Solution**: Use double backslashes `\\` in JSON strings for Windows paths
+- **Example**: `"C:\\\\Users\\\\name\\\\project\\\\venv\\\\Scripts\\\\python.exe"`
 
 ---
 
