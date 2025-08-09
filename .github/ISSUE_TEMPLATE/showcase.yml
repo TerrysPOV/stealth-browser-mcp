@@ -1,0 +1,60 @@
+name: 🏆 Success Story / Showcase
+description: Share how Stealth Browser MCP solved your automation challenges
+title: "[SHOWCASE] "
+labels: ["showcase", "community"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚀 Share Your Success Story!
+        
+        Help the community by sharing how Stealth Browser MCP helped you automate the "impossible".
+        Great showcases get featured in our README and social media!
+
+  - type: input
+    id: site
+    attributes:
+      label: What site/application did you automate?
+      placeholder: "e.g., CloudFlare-protected API, Banking portal, Social media platform"
+    validations:
+      required: true
+
+  - type: textarea
+    id: challenge
+    attributes:
+      label: What was the challenge?
+      description: What made this site difficult to automate with traditional tools?
+      placeholder: "e.g., Aggressive bot detection, CAPTCHA challenges, Complex authentication flow"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: How did Stealth Browser MCP solve it?
+      description: Which tools/functions were key to your success?
+      placeholder: "e.g., Used extract_element_styles + CDP extraction to clone login form perfectly..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: What was the impact?
+      description: Time saved, revenue generated, problems solved?
+      placeholder: "e.g., Saved 40 hours/week of manual data entry, Generated $50k in sales leads"
+
+  - type: input
+    id: tools_used
+    attributes:
+      label: Key MCP tools used
+      placeholder: "e.g., spawn_browser, extract_complete_element_cdp, execute_python_in_browser"
+
+  - type: checkboxes
+    id: sharing
+    attributes:
+      label: Sharing permissions
+      options:
+        - label: ✅ OK to feature this in README/docs
+        - label: ✅ OK to share on social media  
+        - label: ✅ OK to contact me for more details

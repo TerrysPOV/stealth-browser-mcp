@@ -1,0 +1,37 @@
+runtime: "container"
+
+build:
+  dockerfile: "Dockerfile"
+  dockerBuildPath: "."
+
+startCommand:
+  type: "http"
+  configSchema:
+    type: "object"
+    properties:
+      debug:
+        type: "boolean"
+        title: "Debug Mode"
+        description: "Enable debug logging for troubleshooting"
+        default: false
+      headless:
+        type: "boolean"
+        title: "Headless Mode"
+        description: "Run browser in headless mode (recommended for production)"
+        default: true
+      timeout:
+        type: "number"
+        title: "Request Timeout"
+        description: "Request timeout in milliseconds"
+        default: 30000
+        minimum: 5000
+        maximum: 120000
+    required: []
+  exampleConfig:
+    debug: false
+    headless: true
+    timeout: 30000
+
+env:
+  NODE_ENV: "production"
+  PYTHONUNBUFFERED: "1"

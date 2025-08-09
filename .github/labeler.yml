@@ -1,0 +1,11 @@
+area:core:
+  - "src/**"
+area:docs:
+  - "**/*.md"
+  - "README.md"
+area:github:
+  - ".github/**"
+area:examples:
+  - "examples/**"
+
+

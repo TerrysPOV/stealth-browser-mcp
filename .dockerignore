@@ -1,0 +1,60 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+CHANGELOG.md
+docs/
+*.md
+
+# Examples and tests
+examples/
+tests/
+test_*.py
+
+# Development files
+.env.local
+.env.development
+debug_logs/
+screenshots/
+
+# Old stuff and backups
+oldstuff/
+old_network_hook_system/
+*_backup*
+*.bak
+
+# Clone files (temporary data)
+element_clones/
+
+# Media files (not needed in container)
+media/
+
+# Development scripts
+run_server.sh
+run_server.bat
