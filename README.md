@@ -470,4 +470,4 @@ If you want your AI agent to access ANY website, star this repo. It helps more t
 
 ## ⭐ Star History
 
-![Star History](https://api.star-history.com/svg?repos=vibheksoni/stealth-browser-mcp&type=Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=vibheksoni/stealth-browser-mcp&type=Date)](https://www.star-history.com/#vibheksoni/stealth-browser-mcp&Date)
