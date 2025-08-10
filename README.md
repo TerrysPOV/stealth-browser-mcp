@@ -497,6 +497,49 @@ Sites users care about: LinkedIn • Instagram • Twitter/X • Amazon • Bank
 
 ---
 
+## 🎨 **Featured Demo: Augment Code Hero Clone**
+
+<div align="center">
+<img src="media/AugmentHeroClone.PNG" alt="Augment Code Hero Recreation" width="700" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+<br><br>
+<a href="demo/augment-hero-recreation.html">
+  <img src="https://img.shields.io/badge/🚀-View%20Live%20Demo-blue?style=for-the-badge" alt="View Live Demo">
+</a>
+</div>
+
+**🎯 Real Conversation:** User asked Claude to clone the Augment Code hero section. Here's what happened:
+
+### **User Prompt:**
+> *"hey spawn a browser and clone the hero of the site https://www.augmentcode.com/"*
+
+### **What Claude Did Automatically:**
+1. **Spawned undetectable browser** instance
+2. **Navigated** to augmentcode.com 
+3. **Identified hero section** using DOM analysis
+4. **Extracted complete element** with all styles, structure, and assets
+5. **Generated pixel-perfect HTML recreation** with inline CSS
+6. **Enhanced** it to be even better with animations and responsive design
+
+### **Result:**
+✅ **Perfect pixel-accurate recreation** of the entire hero section  
+✅ **Professional animations** and hover effects  
+✅ **Fully responsive design** across all devices  
+✅ **Complete functionality** including navigation and CTA button  
+✅ **All done through simple AI chat** - no manual coding required
+
+**The entire process took under 2 minutes of AI conversation!**
+
+### **Key Features Demonstrated:**
+- 🎨 **CDP-accurate element extraction** - Gets every CSS property perfectly
+- 🎬 **Advanced UI recreation** - Builds production-ready HTML/CSS
+- 📱 **Responsive enhancement** - Adds mobile optimization automatically
+- ✨ **Animation enhancement** - Improves the original with smooth transitions
+- 🚀 **One-command automation** - Complex task executed via simple chat
+
+**💡 This showcases the real power of Stealth Browser MCP - turning complex web cloning tasks into simple AI conversations.**
+
+---
+
 ## 🧪 Real‑world examples
 
 - Market research: extract pricing/features from 5 competitors and output a comparison

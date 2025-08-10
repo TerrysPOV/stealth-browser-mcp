@@ -2,6 +2,25 @@
 
 ## 🔥 **What Makes This Go Viral**
 
+### 🎨 **FEATURED: Augment Code Hero Clone** 
+[![Augment Hero Clone](../media/AugmentHeroClone.PNG)](augment-hero-recreation.html)
+
+**🎯 One Command. Perfect Recreation. Under 2 Minutes.**
+
+```bash
+User: "hey spawn a browser and clone the hero of the site https://www.augmentcode.com/"
+Claude: *Spawns browser → Extracts 2,838 CSS properties → Generates production HTML*
+```
+
+- ✅ **Pixel-perfect recreation** with enhanced animations
+- ✅ **Production-ready code** - 574 lines of professional HTML/CSS  
+- ✅ **Responsive design** improvements beyond original
+- ✅ **Complete automation** - no manual coding required
+
+**[👉 View Live Demo](augment-hero-recreation.html) | [📖 Full Demo Details](augment-hero-clone.md)**
+
+---
+
 ### Bypass Cloudflare in Seconds
 ![Demo: Cloudflare Bypass](cloudflare-demo.gif)
 *Claude accessing a Cloudflare-protected site that blocks all other tools*
