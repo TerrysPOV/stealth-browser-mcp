@@ -4,6 +4,36 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and adheres to Semantic Versioning where practical.
 
+## [0.2.2] - 2025-08-10
+### Added
+- **🎛️ Modular Tool System** - CLI arguments to disable specific tool sections
+- **⚡ --minimal mode** - Run with only core browser management and element interaction tools
+- **📋 --list-sections** - List all 11 tool sections with tool counts
+- **🔧 Granular Control** - Individual disable flags for each of 11 tool sections:
+  - `--disable-browser-management` (11 tools)
+  - `--disable-element-interaction` (10 tools) 
+  - `--disable-element-extraction` (9 tools)
+  - `--disable-file-extraction` (9 tools)
+  - `--disable-network-debugging` (5 tools)
+  - `--disable-cdp-functions` (13 tools)
+  - `--disable-progressive-cloning` (10 tools)
+  - `--disable-cookies-storage` (3 tools)
+  - `--disable-tabs` (5 tools)
+  - `--disable-debugging` (6 tools)
+  - `--disable-dynamic-hooks` (10 tools)
+- **🏗️ Clean Architecture** - Section-based decorator system for conditional tool registration
+
+### Changed
+- Updated CLI help text to show "88 tools" and new section options
+- Reorganized tool registration using `@section_tool()` decorator pattern
+- All tools now conditionally register based on disabled sections set
+
+### Technical
+- Implemented `DISABLED_SECTIONS` global set for tracking disabled functionality
+- Added `is_section_enabled()` helper function
+- Created `@section_tool("section-name")` decorator for conditional registration
+- Tools are only registered if their section is enabled
+
 ## [0.2.1] - 2025-08-09
 ### Added
 - **🚀 Dynamic Network Hook System** - AI-powered request/response interception

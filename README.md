@@ -74,18 +74,36 @@ pip install -r requirements.txt
 # 5. Add to Claude Code using CLI
 ```
 
-**Windows:**
+**Windows (Full Installation):**
 ```bash
 claude mcp add-json stealth-browser-mcp "{\"type\":\"stdio\",\"command\":\"C:\\path\\to\\stealth-browser-mcp\\venv\\Scripts\\python.exe\",\"args\":[\"C:\\path\\to\\stealth-browser-mcp\\src\\server.py\"]}"
 ```
 
-**Mac/Linux:**
+**Windows (Minimal - Core Tools Only):**
+```bash
+claude mcp add-json stealth-browser-mcp "{\"type\":\"stdio\",\"command\":\"C:\\path\\to\\stealth-browser-mcp\\venv\\Scripts\\python.exe\",\"args\":[\"C:\\path\\to\\stealth-browser-mcp\\src\\server.py\",\"--minimal\"]}"
+```
+
+**Mac/Linux (Full Installation):**
 ```bash
 claude mcp add-json stealth-browser-mcp '{
   "type": "stdio",
   "command": "/path/to/stealth-browser-mcp/venv/bin/python",
   "args": [
     "/path/to/stealth-browser-mcp/src/server.py"
+  ]
+}'
+```
+
+**Mac/Linux (Custom - Disable Advanced Features):**
+```bash
+claude mcp add-json stealth-browser-mcp '{
+  "type": "stdio",
+  "command": "/path/to/stealth-browser-mcp/venv/bin/python",
+  "args": [
+    "/path/to/stealth-browser-mcp/src/server.py",
+    "--disable-cdp-functions",
+    "--disable-dynamic-hooks"
   ]
 }'
 ```
@@ -120,9 +138,14 @@ If you don't have Claude Code CLI, manually add to your MCP client configuration
 ```json
 {
   "mcpServers": {
-    "stealth-browser": {
+    "stealth-browser-full": {
       "command": "C:\\path\\to\\stealth-browser-mcp\\venv\\Scripts\\python.exe",
       "args": ["C:\\path\\to\\stealth-browser-mcp\\src\\server.py"],
+      "env": {}
+    },
+    "stealth-browser-minimal": {
+      "command": "C:\\path\\to\\stealth-browser-mcp\\venv\\Scripts\\python.exe",
+      "args": ["C:\\path\\to\\stealth-browser-mcp\\src\\server.py", "--minimal"],
       "env": {}
     }
   }
@@ -133,14 +156,53 @@ If you don't have Claude Code CLI, manually add to your MCP client configuration
 ```json
 {
   "mcpServers": {
-    "stealth-browser": {
+    "stealth-browser-full": {
       "command": "/path/to/stealth-browser-mcp/venv/bin/python",
       "args": ["/path/to/stealth-browser-mcp/src/server.py"],
+      "env": {}
+    },
+    "stealth-browser-custom": {
+      "command": "/path/to/stealth-browser-mcp/venv/bin/python",
+      "args": [
+        "/path/to/stealth-browser-mcp/src/server.py",
+        "--disable-cdp-functions",
+        "--disable-dynamic-hooks"
+      ],
       "env": {}
     }
   }
 }
 ```
+
+### 🎛️ **NEW: Customize Your Installation**
+
+Stealth Browser MCP now supports modular tool loading! Disable sections you don't need:
+
+```bash
+# Minimal installation (only core browser + element interaction)
+python src/server.py --minimal
+
+# Custom installation - disable specific sections
+python src/server.py --disable-cdp-functions --disable-dynamic-hooks
+
+# List all 11 available tool sections
+python src/server.py --list-sections
+```
+
+**Available sections:**
+- `browser-management` (11 tools) - Core browser operations
+- `element-interaction` (10 tools) - Page interaction and manipulation  
+- `element-extraction` (9 tools) - Element cloning and extraction
+- `file-extraction` (9 tools) - File-based extraction tools
+- `network-debugging` (5 tools) - Network monitoring and interception
+- `cdp-functions` (13 tools) - Chrome DevTools Protocol execution
+- `progressive-cloning` (10 tools) - Advanced element cloning
+- `cookies-storage` (3 tools) - Cookie and storage management
+- `tabs` (5 tools) - Tab management
+- `debugging` (6 tools) - Debug and system tools  
+- `dynamic-hooks` (10 tools) - AI-powered network hooks
+
+> **💡 Pro Tip**: Use `--minimal` for lightweight deployments or `--disable-*` flags to exclude functionality you don't need!
 
 ### Quick Test
 Restart your MCP client and ask your agent:
@@ -177,10 +239,45 @@ Restart your MCP client and ask your agent:
 - Pixel-accurate element cloning via Chrome DevTools Protocol
 - **Full network debugging through AI chat — see every request, response, header, and payload**
 - **Your AI agent becomes a network detective — no more guessing what APIs are being called**
+- **🎛️ Modular architecture — disable unused sections, run minimal installs**
+- **⚡ Lightweight deployments — from 21 core tools to full 88-tool arsenal**
 - Clean MCP integration — no custom brokers or wrappers needed
-- 88 focused tools designed for real-world workflows
+- 88 focused tools organized into 11 logical sections
 
 > Built on [nodriver](https://github.com/ultrafunkamsterdam/nodriver) + Chrome DevTools Protocol + FastMCP
+
+---
+
+## 🎛️ **Modular Architecture**
+
+**NEW in v0.2.2**: Stealth Browser MCP now supports modular tool loading! Choose exactly what functionality you need:
+
+### **⚙️ Installation Modes**
+
+| Mode | Tools | Use Case |
+|------|-------|----------|
+| **Full** | 88 tools | Complete browser automation & debugging |
+| **Minimal** (`--minimal`) | 21 tools | Core browser automation only |
+| **Custom** | Your choice | Disable specific sections you don't need |
+
+### **📦 Tool Sections**
+
+```bash
+# List all sections with tool counts
+python src/server.py --list-sections
+
+# Examples:
+python src/server.py --minimal                    # Only browser + element interaction
+python src/server.py --disable-cdp-functions      # Disable Chrome DevTools functions  
+python src/server.py --disable-dynamic-hooks      # Disable AI network hooks
+python src/server.py --disable-debugging          # Disable debug tools
+```
+
+**Benefits:**
+- 🚀 **Faster startup** - Only load tools you need
+- 💾 **Smaller memory footprint** - Reduce resource usage  
+- 🏗️ **Cleaner interface** - Less tool clutter in AI chat
+- ⚙️ **Environment-specific** - Different configs for dev/prod
 
 ---
 
@@ -195,7 +292,8 @@ Restart your MCP client and ask your agent:
 | Network debugging | **AI agent sees all requests/responses** | Basic |
 | API reverse engineering | **Full payload inspection via chat** | Manual tools only |
 | Dynamic Hook System | **AI writes Python functions for real-time request processing** | Not available |
-| Tooling | 88 | ~20 |
+| Modular Architecture | **11 sections, 21-88 tools** | Fixed ~20 tools |
+| Tooling | 88 (customizable) | ~20 |
 
 Sites users care about: LinkedIn • Instagram • Twitter/X • Amazon • Banking • Government portals • Cloudflare APIs • Nike SNKRS • Ticketmaster • Supreme
 

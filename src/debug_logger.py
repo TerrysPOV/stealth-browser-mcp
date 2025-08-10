@@ -25,6 +25,7 @@ class DebugLogger:
             self._stats (Dict[str, int]): Stores statistics for errors, warnings, and calls.
             self._lock (threading.Lock): Ensures thread safety for logging.
             self._enabled (bool): Indicates if logging is enabled.
+            self._seen_errors (set): Track error signatures to prevent duplicates.
         """
         self._errors: List[Dict[str, Any]] = []
         self._warnings: List[Dict[str, Any]] = []
@@ -35,6 +36,7 @@ class DebugLogger:
         self._lock_owner = "none"
         import time
         self._lock_acquired_time = 0
+        self._seen_errors: set = set()
 
     def log_error(self, component: str, method: str, error: Exception, context: Optional[Dict[str, Any]] = None):
         """
@@ -50,6 +52,14 @@ class DebugLogger:
             return
 
         with self._lock:
+            error_signature = f"{component}.{method}.{type(error).__name__}.{str(error)}"
+            
+            if error_signature in self._seen_errors:
+                self._stats[f'{component}.{method}.errors'] += 1
+                return
+            
+            self._seen_errors.add(error_signature)
+            
             error_entry = {
                 'timestamp': datetime.now().isoformat(),
                 'component': component,

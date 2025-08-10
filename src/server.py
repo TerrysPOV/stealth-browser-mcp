@@ -37,6 +37,20 @@ from persistent_storage import persistent_storage
 from progressive_element_cloner import progressive_element_cloner
 from response_handler import response_handler
 
+DISABLED_SECTIONS = set()
+
+def is_section_enabled(section: str) -> bool:
+    """Check if a tool section is enabled."""
+    return section not in DISABLED_SECTIONS
+
+def section_tool(section: str):
+    """Decorator to conditionally register tools based on section status."""
+    def decorator(func):
+        if is_section_enabled(section):
+            return mcp.tool(func)
+        else:
+            return func
+    return decorator
 
 @asynccontextmanager
 async def app_lifespan(server):
@@ -90,11 +104,10 @@ mcp = FastMCP(
 
 browser_manager = BrowserManager()
 network_interceptor = NetworkInterceptor()
-# Dynamic hook system is imported as global instance
 dom_handler = DOMHandler()
 cdp_function_executor = CDPFunctionExecutor()
 
-@mcp.tool
+@section_tool("browser-management")
 async def spawn_browser(
     headless: bool = False,
     user_agent: Optional[str] = None,
@@ -141,7 +154,6 @@ async def spawn_browser(
             await network_interceptor.setup_interception(
                 tab, instance.instance_id, block_resources
             )
-            # Also setup network hook interception
             await dynamic_hook_system.setup_interception(tab, instance.instance_id)
             dynamic_hook_system.add_instance(instance.instance_id)
         return {
@@ -153,7 +165,7 @@ async def spawn_browser(
     except Exception as e:
         raise Exception(f"Failed to spawn browser: {str(e)}")
 
-@mcp.tool
+@section_tool("browser-management")
 async def list_instances() -> List[Dict[str, Any]]:
     """
     List all active browser instances.
@@ -184,7 +196,7 @@ async def list_instances() -> List[Dict[str, Any]]:
             })
     return result
 
-@mcp.tool
+@section_tool("browser-management")
 async def close_instance(instance_id: str) -> bool:
     """
     Close a browser instance.
@@ -200,7 +212,7 @@ async def close_instance(instance_id: str) -> bool:
         await network_interceptor.clear_instance_data(instance_id)
     return success
 
-@mcp.tool
+@section_tool("browser-management")
 async def get_instance_state(instance_id: str) -> Optional[Dict[str, Any]]:
     """
     Get detailed state of a browser instance.
@@ -216,7 +228,7 @@ async def get_instance_state(instance_id: str) -> Optional[Dict[str, Any]]:
         return state.dict()
     return None
 
-@mcp.tool
+@section_tool("browser-management")
 async def navigate(
     instance_id: str,
     url: str,
@@ -265,7 +277,7 @@ async def navigate(
     except Exception as e:
         raise
 
-@mcp.tool
+@section_tool("browser-management")
 async def go_back(instance_id: str) -> bool:
     """
     Navigate back in history.
@@ -282,7 +294,7 @@ async def go_back(instance_id: str) -> bool:
     await tab.back()
     return True
 
-@mcp.tool
+@section_tool("browser-management")
 async def go_forward(instance_id: str) -> bool:
     """
     Navigate forward in history.
@@ -299,7 +311,7 @@ async def go_forward(instance_id: str) -> bool:
     await tab.forward()
     return True
 
-@mcp.tool
+@section_tool("browser-management")
 async def reload_page(instance_id: str, ignore_cache: bool = False) -> bool:
     """
     Reload the current page.
@@ -317,7 +329,7 @@ async def reload_page(instance_id: str, ignore_cache: bool = False) -> bool:
     await tab.reload()
     return True
 
-@mcp.tool
+@section_tool("element-interaction")
 async def query_elements(
     instance_id: str,
     selector: str,
@@ -360,7 +372,7 @@ async def query_elements(
     debug_logger.log_info('Server', 'query_elements', f'Returning {len(result)} results to MCP client')
     return result if result else []
 
-@mcp.tool
+@section_tool("element-interaction")
 async def click_element(
     instance_id: str,
     selector: str,
@@ -386,7 +398,7 @@ async def click_element(
         raise Exception(f"Instance not found: {instance_id}")
     return await dom_handler.click_element(tab, selector, text_match, timeout)
 
-@mcp.tool
+@section_tool("element-interaction")
 async def type_text(
     instance_id: str,
     selector: str,
@@ -414,7 +426,7 @@ async def type_text(
         raise Exception(f"Instance not found: {instance_id}")
     return await dom_handler.type_text(tab, selector, text, clear_first, delay_ms)
 
-@mcp.tool
+@section_tool("element-interaction")
 async def select_option(
     instance_id: str,
     selector: str,
@@ -439,7 +451,6 @@ async def select_option(
     if not tab:
         raise Exception(f"Instance not found: {instance_id}")
     
-    # Convert string index to int if provided
     converted_index = None
     if index is not None:
         try:
@@ -449,7 +460,7 @@ async def select_option(
     
     return await dom_handler.select_option(tab, selector, value, text, converted_index)
 
-@mcp.tool
+@section_tool("element-interaction")
 async def get_element_state(
     instance_id: str,
     selector: str
@@ -469,7 +480,7 @@ async def get_element_state(
         raise Exception(f"Instance not found: {instance_id}")
     return await dom_handler.get_element_state(tab, selector)
 
-@mcp.tool
+@section_tool("element-interaction")
 async def wait_for_element(
     instance_id: str,
     selector: str,
@@ -497,7 +508,7 @@ async def wait_for_element(
         raise Exception(f"Instance not found: {instance_id}")
     return await dom_handler.wait_for_element(tab, selector, timeout, visible, text_content)
 
-@mcp.tool
+@section_tool("element-interaction")
 async def scroll_page(
     instance_id: str,
     direction: str = "down",
@@ -523,7 +534,7 @@ async def scroll_page(
         raise Exception(f"Instance not found: {instance_id}")
     return await dom_handler.scroll_page(tab, direction, amount, smooth)
 
-@mcp.tool
+@section_tool("element-interaction")
 async def execute_script(
     instance_id: str,
     script: str,
@@ -557,7 +568,7 @@ async def execute_script(
             "error": str(e)
         }
 
-@mcp.tool
+@section_tool("element-interaction")
 async def get_page_content(
     instance_id: str,
     include_frames: bool = False
@@ -577,14 +588,13 @@ async def get_page_content(
         raise Exception(f"Instance not found: {instance_id}")
     content = await dom_handler.get_page_content(tab, include_frames)
     
-    # Use response handler to manage large responses
     return response_handler.handle_response(
         content, 
         "page_content", 
         {"instance_id": instance_id, "include_frames": include_frames}
     )
 
-@mcp.tool
+@section_tool("element-interaction")
 async def take_screenshot(
     instance_id: str,
     full_page: bool = False,
@@ -624,7 +634,7 @@ async def take_screenshot(
                 os.unlink(tmp_path)
 
 
-@mcp.tool
+@section_tool("network-debugging")
 async def list_network_requests(
     instance_id: str,
     filter_type: Optional[str] = None
@@ -651,11 +661,10 @@ async def list_network_requests(
         for req in requests
     ]
     
-    # Use response handler for large responses
     return response_handler.handle_response(formatted_requests, "network_requests")
 
 
-@mcp.tool
+@section_tool("network-debugging")
 async def get_request_details(
     request_id: str
 ) -> Optional[Dict[str, Any]]:
@@ -674,7 +683,7 @@ async def get_request_details(
     return None
 
 
-@mcp.tool
+@section_tool("network-debugging")
 async def get_response_details(
     request_id: str
 ) -> Optional[Dict[str, Any]]:
@@ -693,7 +702,7 @@ async def get_response_details(
     return None
 
 
-@mcp.tool
+@section_tool("network-debugging")
 async def get_response_content(
     instance_id: str,
     request_id: str
@@ -721,7 +730,7 @@ async def get_response_content(
     return None
 
 
-@mcp.tool
+@section_tool("network-debugging")
 async def modify_headers(
     instance_id: str,
     headers: Dict[str, str]
@@ -742,7 +751,7 @@ async def modify_headers(
     return await network_interceptor.modify_headers(tab, headers)
 
 
-@mcp.tool
+@section_tool("cookies-storage")
 async def get_cookies(
     instance_id: str,
     urls: Optional[List[str]] = None
@@ -763,7 +772,7 @@ async def get_cookies(
     return await network_interceptor.get_cookies(tab, urls)
 
 
-@mcp.tool
+@section_tool("cookies-storage")
 async def set_cookie(
     instance_id: str,
     name: str,
@@ -796,9 +805,7 @@ async def set_cookie(
     if not tab:
         raise Exception(f"Instance not found: {instance_id}")
     
-    # According to nodriver docs, at least one of url or domain is required
     if not url and not domain:
-        # Get current page URL as fallback
         current_url = tab.url if hasattr(tab, 'url') else None
         if current_url:
             url = current_url
@@ -821,7 +828,7 @@ async def set_cookie(
     return await network_interceptor.set_cookie(tab, cookie)
 
 
-@mcp.tool
+@section_tool("cookies-storage")
 async def clear_cookies(
     instance_id: str,
     url: Optional[str] = None
@@ -909,7 +916,7 @@ async def get_console_resource(instance_id: str) -> str:
     return json.dumps({"error": "Instance not found"})
 
 
-@mcp.tool
+@section_tool("debugging")
 async def get_debug_view(
     max_errors: int = 50,
     max_warnings: int = 50,
@@ -936,7 +943,7 @@ async def get_debug_view(
     return debug_data
 
 
-@mcp.tool
+@section_tool("debugging")
 async def clear_debug_view() -> bool:
     """
     Clear all debug logs and statistics with timeout protection.
@@ -945,7 +952,6 @@ async def clear_debug_view() -> bool:
         bool: True if cleared successfully.
     """
     try:
-        # Run with timeout to prevent hanging
         await asyncio.wait_for(
             asyncio.to_thread(debug_logger.clear_debug_view_safe),
             timeout=10.0
@@ -955,7 +961,7 @@ async def clear_debug_view() -> bool:
         return False
 
 
-@mcp.tool
+@section_tool("debugging")
 async def export_debug_logs(
     filename: str = "debug_log.json",
     max_errors: int = 100,
@@ -983,7 +989,6 @@ async def export_debug_logs(
         str: Path to the exported file.
     """
     try:
-        # Run with timeout to prevent hanging
         filepath = await asyncio.wait_for(
             asyncio.to_thread(
                 debug_logger.export_to_file_paginated,
@@ -1000,7 +1005,7 @@ async def export_debug_logs(
         return f"Export timeout - file too large. Try with smaller limits or 'gzip-pickle' format."
 
 
-@mcp.tool
+@section_tool("debugging")
 async def get_debug_lock_status() -> Dict[str, Any]:
     """
     Get current debug logger lock status for debugging hanging exports.
@@ -1014,7 +1019,7 @@ async def get_debug_lock_status() -> Dict[str, Any]:
         return {"error": str(e)}
 
 
-@mcp.tool
+@section_tool("tabs")
 async def list_tabs(instance_id: str) -> List[Dict[str, str]]:
     """
     List all tabs for a browser instance.
@@ -1028,7 +1033,7 @@ async def list_tabs(instance_id: str) -> List[Dict[str, str]]:
     return await browser_manager.list_tabs(instance_id)
 
 
-@mcp.tool
+@section_tool("tabs")
 async def switch_tab(
     instance_id: str,
     tab_id: str
@@ -1046,7 +1051,7 @@ async def switch_tab(
     return await browser_manager.switch_to_tab(instance_id, tab_id)
 
 
-@mcp.tool
+@section_tool("tabs")
 async def close_tab(
     instance_id: str,
     tab_id: str
@@ -1064,7 +1069,7 @@ async def close_tab(
     return await browser_manager.close_tab(instance_id, tab_id)
 
 
-@mcp.tool
+@section_tool("tabs")
 async def get_active_tab(instance_id: str) -> Dict[str, Any]:
     """
     Get information about the currently active tab.
@@ -1087,7 +1092,7 @@ async def get_active_tab(instance_id: str) -> Dict[str, Any]:
     }
 
 
-@mcp.tool
+@section_tool("tabs")
 async def new_tab(
     instance_id: str,
     url: str = "about:blank"
@@ -1118,7 +1123,7 @@ async def new_tab(
         raise Exception(f"Failed to create new tab: {str(e)}")
 
 
-@mcp.tool
+@section_tool("element-extraction")
 async def extract_element_styles(
     instance_id: str,
     selector: str,
@@ -1154,7 +1159,7 @@ async def extract_element_styles(
     )
 
 
-@mcp.tool
+@section_tool("element-extraction")
 async def extract_element_structure(
     instance_id: str,
     selector: str,
@@ -1190,7 +1195,7 @@ async def extract_element_structure(
     )
 
 
-@mcp.tool
+@section_tool("element-extraction")
 async def extract_element_events(
     instance_id: str,
     selector: str,
@@ -1226,7 +1231,7 @@ async def extract_element_events(
     )
 
 
-@mcp.tool
+@section_tool("element-extraction")
 async def extract_element_animations(
     instance_id: str,
     selector: str,
@@ -1262,7 +1267,7 @@ async def extract_element_animations(
     )
 
 
-@mcp.tool
+@section_tool("element-extraction")
 async def extract_element_assets(
     instance_id: str,
     selector: str,
@@ -1299,7 +1304,7 @@ async def extract_element_assets(
     return await response_handler.handle_response(result, f"element_assets_{instance_id}_{selector.replace(' ', '_')}")
 
 
-@mcp.tool
+@section_tool("element-extraction")
 async def extract_element_styles_cdp(
     instance_id: str,
     selector: str,
@@ -1336,7 +1341,7 @@ async def extract_element_styles_cdp(
     )
 
 
-@mcp.tool
+@section_tool("element-extraction")
 async def extract_related_files(
     instance_id: str,
     analyze_css: bool = True,
@@ -1370,7 +1375,7 @@ async def extract_related_files(
     return await response_handler.handle_response(result, f"related_files_{instance_id}")
 
 
-@mcp.tool
+@section_tool("element-extraction")
 async def clone_element_complete(
     instance_id: str,
     selector: str,
@@ -1413,7 +1418,6 @@ async def clone_element_complete(
         include_children=parsed_options.get('structure', {}).get('include_children', True) if parsed_options else True
     )
     
-    # Use response handler to automatically save to file if too large
     return response_handler.handle_response(
         result,
         fallback_filename_prefix="complete_clone",
@@ -1425,7 +1429,7 @@ async def clone_element_complete(
     )
 
 
-@mcp.tool
+@section_tool("debugging")
 async def hot_reload() -> str:
     """
     Hot reload all modules without restarting the server.
@@ -1463,7 +1467,7 @@ async def hot_reload() -> str:
         return f"❌ Hot reload failed: {str(e)}"
 
 
-@mcp.tool
+@section_tool("debugging")
 async def reload_status() -> str:
     """
     Check the status of loaded modules.
@@ -1492,7 +1496,7 @@ async def reload_status() -> str:
         return f"Error checking module status: {str(e)}"
 
 
-@mcp.tool
+@section_tool("progressive-cloning")
 async def clone_element_progressive(
     instance_id: str,
     selector: str,
@@ -1515,7 +1519,7 @@ async def clone_element_progressive(
     return await progressive_element_cloner.clone_element_progressive(tab, selector, include_children)
 
 
-@mcp.tool
+@section_tool("progressive-cloning")
 async def expand_styles(
     element_id: str,
     categories: Optional[List[str]] = None,
@@ -1535,7 +1539,7 @@ async def expand_styles(
     return progressive_element_cloner.expand_styles(element_id, categories, properties)
 
 
-@mcp.tool
+@section_tool("progressive-cloning")
 async def expand_events(
     element_id: str,
     event_types: Optional[List[str]] = None
@@ -1553,7 +1557,7 @@ async def expand_events(
     return progressive_element_cloner.expand_events(element_id, event_types)
 
 
-@mcp.tool
+@section_tool("progressive-cloning")
 async def expand_children(
     element_id: str,
     depth_range: Optional[List] = None,
@@ -1570,29 +1574,25 @@ async def expand_children(
     Returns:
         Dict[str, Any]: Filtered children data.
     """
-    # Convert max_count to int if it's a string
     if isinstance(max_count, str):
         try:
             max_count = int(max_count) if max_count else None
         except ValueError:
             return {"error": f"Invalid max_count value: {max_count}"}
     
-    # Convert depth_range to list of ints if provided
     if isinstance(depth_range, list):
         try:
             depth_range = [int(x) if isinstance(x, str) else x for x in depth_range]
         except ValueError:
             return {"error": f"Invalid depth_range values: {depth_range}"}
     
-    # Convert to tuple for the progressive cloner
     depth_tuple = tuple(depth_range) if depth_range else None
-    
-    # Get the result and wrap with response handler for large responses
+
     result = progressive_element_cloner.expand_children(element_id, depth_tuple, max_count)
     return response_handler.handle_response(result, f"expand_children_{element_id}")
 
 
-@mcp.tool
+@section_tool("progressive-cloning")
 async def expand_css_rules(
     element_id: str,
     source_types: Optional[List[str]] = None
@@ -1610,7 +1610,7 @@ async def expand_css_rules(
     return progressive_element_cloner.expand_css_rules(element_id, source_types)
 
 
-@mcp.tool
+@section_tool("progressive-cloning")
 async def expand_pseudo_elements(
     element_id: str
 ) -> Dict[str, Any]:
@@ -1626,7 +1626,7 @@ async def expand_pseudo_elements(
     return progressive_element_cloner.expand_pseudo_elements(element_id)
 
 
-@mcp.tool
+@section_tool("progressive-cloning")
 async def expand_animations(
     element_id: str
 ) -> Dict[str, Any]:
@@ -1642,7 +1642,7 @@ async def expand_animations(
     return progressive_element_cloner.expand_animations(element_id)
 
 
-@mcp.tool
+@section_tool("progressive-cloning")
 async def list_stored_elements() -> Dict[str, Any]:
     """
     List all stored elements with their basic info.
@@ -1653,7 +1653,7 @@ async def list_stored_elements() -> Dict[str, Any]:
     return progressive_element_cloner.list_stored_elements()
 
 
-@mcp.tool
+@section_tool("progressive-cloning")
 async def clear_stored_element(
     element_id: str
 ) -> Dict[str, Any]:
@@ -1669,7 +1669,7 @@ async def clear_stored_element(
     return progressive_element_cloner.clear_stored_element(element_id)
 
 
-@mcp.tool
+@section_tool("progressive-cloning")
 async def clear_all_elements() -> Dict[str, Any]:
     """
     Clear all stored elements.
@@ -1680,7 +1680,7 @@ async def clear_all_elements() -> Dict[str, Any]:
     return progressive_element_cloner.clear_all_elements()
 
 
-@mcp.tool
+@section_tool("file-extraction")
 async def clone_element_to_file(
     instance_id: str,
     selector: str,
@@ -1715,7 +1715,7 @@ async def clone_element_to_file(
     )
 
 
-@mcp.tool
+@section_tool("file-extraction")
 async def extract_complete_element_to_file(
     instance_id: str,
     selector: str,
@@ -1743,7 +1743,7 @@ async def extract_complete_element_to_file(
     )
 
 
-@mcp.tool
+@section_tool("element-extraction")
 async def extract_complete_element_cdp(
     instance_id: str,
     selector: str,
@@ -1776,7 +1776,7 @@ async def extract_complete_element_cdp(
     return await cdp_cloner.extract_complete_element_cdp(tab, selector, include_children)
 
 
-@mcp.tool
+@section_tool("file-extraction")
 async def extract_element_styles_to_file(
     instance_id: str,
     selector: str,
@@ -1812,7 +1812,7 @@ async def extract_element_styles_to_file(
     )
 
 
-@mcp.tool
+@section_tool("file-extraction")
 async def extract_element_structure_to_file(
     instance_id: str,
     selector: str,
@@ -1848,7 +1848,7 @@ async def extract_element_structure_to_file(
     )
 
 
-@mcp.tool
+@section_tool("file-extraction")
 async def extract_element_events_to_file(
     instance_id: str,
     selector: str,
@@ -1884,7 +1884,7 @@ async def extract_element_events_to_file(
     )
 
 
-@mcp.tool
+@section_tool("file-extraction")
 async def extract_element_animations_to_file(
     instance_id: str,
     selector: str,
@@ -1920,7 +1920,7 @@ async def extract_element_animations_to_file(
     )
 
 
-@mcp.tool
+@section_tool("file-extraction")
 async def extract_element_assets_to_file(
     instance_id: str,
     selector: str,
@@ -1956,7 +1956,7 @@ async def extract_element_assets_to_file(
     )
 
 
-@mcp.tool
+@section_tool("file-extraction")
 async def list_clone_files() -> List[Dict[str, Any]]:
     """
     List all element clone files saved to disk.
@@ -1967,7 +1967,7 @@ async def list_clone_files() -> List[Dict[str, Any]]:
     return file_based_element_cloner.list_clone_files()
 
 
-@mcp.tool
+@section_tool("file-extraction")
 async def cleanup_clone_files(
     max_age_hours: int = 24
 ) -> Dict[str, int]:
@@ -1984,7 +1984,7 @@ async def cleanup_clone_files(
     return {"deleted_count": deleted_count}
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def list_cdp_commands() -> List[str]:
     """
     List all available CDP Runtime commands for function execution.
@@ -1995,7 +1995,7 @@ async def list_cdp_commands() -> List[str]:
     return await cdp_function_executor.list_cdp_commands()
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def execute_cdp_command(
     instance_id: str,
     command: str,
@@ -2019,8 +2019,7 @@ async def execute_cdp_command(
         # Correct - use snake_case
         params = {"expression": "document.title", "return_by_value": True}
         
-        # Incorrect - don't use camelCase  
-        params = {"expression": "document.title", "returnByValue": True}  # This will fail!
+        params = {"expression": "document.title", "returnByValue": True}
     """
     tab = await browser_manager.get_tab(instance_id)
     if not tab:
@@ -2028,7 +2027,7 @@ async def execute_cdp_command(
     return await cdp_function_executor.execute_cdp_command(tab, command, params or {})
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def get_execution_contexts(
     instance_id: str
 ) -> List[Dict[str, Any]]:
@@ -2057,7 +2056,7 @@ async def get_execution_contexts(
     ]
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def discover_global_functions(
     instance_id: str,
     context_id: str = None
@@ -2086,7 +2085,6 @@ async def discover_global_functions(
         for func in functions
     ]
     
-    # Use response handler to automatically save to file if too large
     file_response = response_handler.handle_response(
         result,
         fallback_filename_prefix="global_functions",
@@ -2097,7 +2095,6 @@ async def discover_global_functions(
         }
     )
     
-    # If response was saved to file, return array with file info instead of breaking schema
     if isinstance(file_response, dict) and "file_path" in file_response:
         return [{
             "name": "LARGE_RESPONSE_SAVED_TO_FILE",
@@ -2109,7 +2106,7 @@ async def discover_global_functions(
     return file_response
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def discover_object_methods(
     instance_id: str,
     object_path: str
@@ -2138,14 +2135,13 @@ async def discover_object_methods(
         for method in methods
     ]
     
-    # Use response handler for large responses
     return await response_handler.handle_response(
         methods_data,
         f"object_methods_{object_path.replace('.', '_')}"
     )
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def call_javascript_function(
     instance_id: str,
     function_path: str,
@@ -2168,7 +2164,7 @@ async def call_javascript_function(
     return await cdp_function_executor.call_discovered_function(tab, function_path, args or [])
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def inspect_function_signature(
     instance_id: str,
     function_path: str
@@ -2189,7 +2185,7 @@ async def inspect_function_signature(
     return await cdp_function_executor.inspect_function_signature(tab, function_path)
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def inject_and_execute_script(
     instance_id: str,
     script_code: str,
@@ -2212,7 +2208,7 @@ async def inject_and_execute_script(
     return await cdp_function_executor.inject_and_execute_script(tab, script_code, context_id)
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def create_persistent_function(
     instance_id: str,
     function_name: str,
@@ -2235,7 +2231,7 @@ async def create_persistent_function(
     return await cdp_function_executor.create_persistent_function(tab, function_name, function_code, instance_id)
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def execute_function_sequence(
     instance_id: str,
     function_calls: List[Dict[str, Any]]
@@ -2264,7 +2260,7 @@ async def execute_function_sequence(
     return await cdp_function_executor.execute_function_sequence(tab, calls)
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def create_python_binding(
     instance_id: str,
     binding_name: str,
@@ -2299,7 +2295,7 @@ async def create_python_binding(
         return {"success": False, "error": f"Failed to create Python function: {str(e)}"}
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def execute_python_in_browser(
     instance_id: str,
     python_code: str
@@ -2320,7 +2316,7 @@ async def execute_python_in_browser(
     return await cdp_function_executor.execute_python_in_browser(tab, python_code)
 
 
-@mcp.tool
+@section_tool("cdp-functions")
 async def get_function_executor_info(
     instance_id: str = None
 ) -> Dict[str, Any]:
@@ -2336,11 +2332,7 @@ async def get_function_executor_info(
     return await cdp_function_executor.get_function_executor_info(instance_id)
 
 
-
-
-# Dynamic Hook System Functions (New AI-Generated Hook System)
-
-@mcp.tool
+@section_tool("dynamic-hooks")
 async def create_dynamic_hook(
     name: str,
     requirements: Dict[str, Any],
@@ -2381,7 +2373,7 @@ async def create_dynamic_hook(
     )
 
 
-@mcp.tool
+@section_tool("dynamic-hooks")
 async def create_simple_dynamic_hook(
     name: str,
     url_pattern: str,
@@ -2414,7 +2406,7 @@ async def create_simple_dynamic_hook(
     )
 
 
-@mcp.tool
+@section_tool("dynamic-hooks")
 async def list_dynamic_hooks(instance_id: Optional[str] = None) -> Dict[str, Any]:
     """
     List all dynamic hooks.
@@ -2428,7 +2420,7 @@ async def list_dynamic_hooks(instance_id: Optional[str] = None) -> Dict[str, Any
     return await dynamic_hook_ai.list_dynamic_hooks(instance_id=instance_id)
 
 
-@mcp.tool
+@section_tool("dynamic-hooks")
 async def get_dynamic_hook_details(hook_id: str) -> Dict[str, Any]:
     """
     Get detailed information about a specific dynamic hook.
@@ -2442,7 +2434,7 @@ async def get_dynamic_hook_details(hook_id: str) -> Dict[str, Any]:
     return await dynamic_hook_ai.get_hook_details(hook_id=hook_id)
 
 
-@mcp.tool
+@section_tool("dynamic-hooks")
 async def remove_dynamic_hook(hook_id: str) -> Dict[str, Any]:
     """
     Remove a dynamic hook.
@@ -2456,7 +2448,7 @@ async def remove_dynamic_hook(hook_id: str) -> Dict[str, Any]:
     return await dynamic_hook_ai.remove_dynamic_hook(hook_id=hook_id)
 
 
-@mcp.tool
+@section_tool("dynamic-hooks")
 def get_hook_documentation() -> Dict[str, Any]:
     """
     Get comprehensive documentation for creating hook functions (AI learning).
@@ -2467,7 +2459,7 @@ def get_hook_documentation() -> Dict[str, Any]:
     return dynamic_hook_ai.get_request_documentation()
 
 
-@mcp.tool
+@section_tool("dynamic-hooks")
 def get_hook_examples() -> Dict[str, Any]:
     """
     Get example hook functions for AI learning.
@@ -2478,7 +2470,7 @@ def get_hook_examples() -> Dict[str, Any]:
     return dynamic_hook_ai.get_hook_examples()
 
 
-@mcp.tool
+@section_tool("dynamic-hooks")
 def get_hook_requirements_documentation() -> Dict[str, Any]:
     """
     Get documentation on hook requirements and matching criteria.
@@ -2489,7 +2481,7 @@ def get_hook_requirements_documentation() -> Dict[str, Any]:
     return dynamic_hook_ai.get_requirements_documentation()
 
 
-@mcp.tool
+@section_tool("dynamic-hooks")
 def get_hook_common_patterns() -> Dict[str, Any]:
     """
     Get common hook patterns and use cases.
@@ -2500,7 +2492,7 @@ def get_hook_common_patterns() -> Dict[str, Any]:
     return dynamic_hook_ai.get_common_patterns()
 
 
-@mcp.tool
+@section_tool("dynamic-hooks")
 def validate_hook_function(function_code: str) -> Dict[str, Any]:
     """
     Validate hook function code for common issues before creating.
@@ -2518,7 +2510,7 @@ def validate_hook_function(function_code: str) -> Dict[str, Any]:
 if __name__ == "__main__":
     import argparse
     
-    parser = argparse.ArgumentParser(description="Stealth Browser MCP Server")
+    parser = argparse.ArgumentParser(description="Stealth Browser MCP Server with 88 tools")
     parser.add_argument("--transport", choices=["stdio", "http"], default="stdio",
                       help="Transport protocol to use")
     parser.add_argument("--port", type=int, default=int(os.getenv("PORT", 8000)),
@@ -2526,7 +2518,85 @@ if __name__ == "__main__":
     parser.add_argument("--host", default="0.0.0.0",
                       help="Host for HTTP transport")
     
+    parser.add_argument("--disable-browser-management", action="store_true",
+                      help="Disable browser management tools (spawn, navigate, close, etc.)")
+    parser.add_argument("--disable-element-interaction", action="store_true",
+                      help="Disable element interaction tools (click, type, scroll, etc.)")
+    parser.add_argument("--disable-element-extraction", action="store_true",
+                      help="Disable element extraction tools (styles, structure, events, etc.)")
+    parser.add_argument("--disable-file-extraction", action="store_true",
+                      help="Disable file-based extraction tools")
+    parser.add_argument("--disable-network-debugging", action="store_true",
+                      help="Disable network debugging and interception tools")
+    parser.add_argument("--disable-cdp-functions", action="store_true",
+                      help="Disable CDP function execution tools")
+    parser.add_argument("--disable-progressive-cloning", action="store_true",
+                      help="Disable progressive element cloning tools")
+    parser.add_argument("--disable-cookies-storage", action="store_true",
+                      help="Disable cookie and storage management tools")
+    parser.add_argument("--disable-tabs", action="store_true",
+                      help="Disable tab management tools")
+    parser.add_argument("--disable-debugging", action="store_true",
+                      help="Disable debug and system tools")
+    parser.add_argument("--disable-dynamic-hooks", action="store_true",
+                      help="Disable dynamic network hook system")
+    
+    parser.add_argument("--minimal", action="store_true",
+                      help="Enable only core browser management and element interaction (disable everything else)")
+    parser.add_argument("--list-sections", action="store_true",
+                      help="List all available tool sections and exit")
+    
     args = parser.parse_args()
+    
+    if args.list_sections:
+        print("Available tool sections:")
+        print("  browser-management: Core browser operations (11 tools)")
+        print("  element-interaction: Page interaction and element manipulation (8 tools)")
+        print("  element-extraction: Element cloning and extraction (10 tools)")
+        print("  file-extraction: File-based extraction tools (9 tools)")
+        print("  network-debugging: Network monitoring and interception (10 tools)")
+        print("  cdp-functions: Chrome DevTools Protocol function execution (15 tools)")
+        print("  progressive-cloning: Advanced element cloning system (10 tools)")
+        print("  cookies-storage: Cookie and storage management (3 tools)")
+        print("  tabs: Tab management (5 tools)")
+        print("  debugging: Debug and system tools (5 tools)")
+        print("  dynamic-hooks: AI-powered network hook system (12 tools)")
+        print("\nUse --disable-<section-name> to disable specific sections")
+        print("Use --minimal to enable only core functionality")
+        sys.exit(0)
+    
+    if args.minimal:
+        DISABLED_SECTIONS.update([
+            "element-extraction", "file-extraction", "network-debugging",
+            "cdp-functions", "progressive-cloning", "cookies-storage",
+            "tabs", "debugging", "dynamic-hooks"
+        ])
+    
+    if args.disable_browser_management:
+        DISABLED_SECTIONS.add("browser-management")
+    if args.disable_element_interaction:
+        DISABLED_SECTIONS.add("element-interaction")
+    if args.disable_element_extraction:
+        DISABLED_SECTIONS.add("element-extraction")
+    if args.disable_file_extraction:
+        DISABLED_SECTIONS.add("file-extraction")
+    if args.disable_network_debugging:
+        DISABLED_SECTIONS.add("network-debugging")
+    if args.disable_cdp_functions:
+        DISABLED_SECTIONS.add("cdp-functions")
+    if args.disable_progressive_cloning:
+        DISABLED_SECTIONS.add("progressive-cloning")
+    if args.disable_cookies_storage:
+        DISABLED_SECTIONS.add("cookies-storage")
+    if args.disable_tabs:
+        DISABLED_SECTIONS.add("tabs")
+    if args.disable_debugging:
+        DISABLED_SECTIONS.add("debugging")
+    if args.disable_dynamic_hooks:
+        DISABLED_SECTIONS.add("dynamic-hooks")
+    
+    if DISABLED_SECTIONS:
+        print(f"Disabled tool sections: {', '.join(sorted(DISABLED_SECTIONS))}")
     
     if args.transport == "http":
         mcp.run(transport="http", host=args.host, port=args.port)
