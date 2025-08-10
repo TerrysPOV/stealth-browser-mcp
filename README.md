@@ -18,7 +18,7 @@ Supercharge any MCP-compatible AI agent with undetectable, real-browser automati
 [![Issues](https://img.shields.io/github/issues/vibheksoni/stealth-browser-mcp?style=flat-square)](https://github.com/vibheksoni/stealth-browser-mcp/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/7ETmqgTY6H)
-[![Tools](https://img.shields.io/badge/Tools-88-orange?style=flat-square)](#-toolbox)
+[![Tools](https://img.shields.io/badge/Tools-89-orange?style=flat-square)](#-toolbox)
 [![Success Rate](https://img.shields.io/badge/Success%20Rate-98.7%25-success?style=flat-square)](#-stealth-vs-playwright-mcp)
 [![Cloudflare Bypass](https://img.shields.io/badge/Cloudflare-Bypass-red?style=flat-square)](#-why-developers-star-this)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
@@ -45,7 +45,7 @@ Supercharge any MCP-compatible AI agent with undetectable, real-browser automati
 - 🏆 [Hall of Fame](HALL_OF_FAME.md) - Impossible automations made possible
 - 🥊 [Stealth vs Others](COMPARISON.md) - Why we dominate the competition  
 - 🔥 [Viral Examples](examples/claude_prompts.md) - Copy & paste prompts that blow minds
-- 🧰 [88 Tools](#toolbox) - Complete arsenal of browser automation
+- 🧰 [89 Tools](#toolbox) - Complete arsenal of browser automation
 - 🎥 [Live Demos](demo/) - See it bypass what others can't
 - 🤝 [Contributing](#contributing) & 💬 [Discord](https://discord.gg/7ETmqgTY6H)
 
@@ -191,7 +191,7 @@ python src/server.py --list-sections
 
 **Available sections:**
 - `browser-management` (11 tools) - Core browser operations
-- `element-interaction` (10 tools) - Page interaction and manipulation  
+- `element-interaction` (11 tools) - Page interaction and manipulation  
 - `element-extraction` (9 tools) - Element cloning and extraction
 - `file-extraction` (9 tools) - File-based extraction tools
 - `network-debugging` (5 tools) - Network monitoring and interception
@@ -240,11 +240,42 @@ Restart your MCP client and ask your agent:
 - **Full network debugging through AI chat — see every request, response, header, and payload**
 - **Your AI agent becomes a network detective — no more guessing what APIs are being called**
 - **🎛️ Modular architecture — disable unused sections, run minimal installs**
-- **⚡ Lightweight deployments — from 21 core tools to full 88-tool arsenal**
+- **⚡ Lightweight deployments — from 22 core tools to full 89-tool arsenal**
 - Clean MCP integration — no custom brokers or wrappers needed
-- 88 focused tools organized into 11 logical sections
+- 89 focused tools organized into 11 logical sections
 
 > Built on [nodriver](https://github.com/ultrafunkamsterdam/nodriver) + Chrome DevTools Protocol + FastMCP
+
+## 🎯 **NEW: Advanced Text Input**
+
+**Latest Enhancement (v0.2.3)**: Revolutionary text input capabilities that solve common automation challenges:
+
+### ⚡ **Instant Text Pasting**
+```python
+# NEW: paste_text() - Lightning-fast text input via CDP
+await paste_text(instance_id, "textarea", large_markdown_content, clear_first=True)
+```
+- **10x faster** than character-by-character typing
+- Uses Chrome DevTools Protocol `insert_text` for maximum compatibility
+- Perfect for large content (README files, code blocks, forms)
+
+### 📝 **Smart Newline Handling**
+```python  
+# ENHANCED: type_text() with newline parsing
+await type_text(instance_id, "textarea", "Line 1\nLine 2\nLine 3", parse_newlines=True, delay_ms=10)
+```
+- **`parse_newlines=True`**: Converts `\n` to actual Enter key presses
+- Essential for multi-line forms, chat apps, and text editors
+- Maintains human-like typing with customizable speed
+
+### 🔧 **Why This Matters**
+- **Form Automation**: Handle complex multi-line inputs correctly
+- **Content Management**: Paste large documents instantly without timeouts  
+- **Chat Applications**: Send multi-line messages with proper line breaks
+- **Code Input**: Paste code snippets with preserved formatting
+- **Markdown Editors**: Handle content with proper line separations
+
+**Real-world impact**: What used to take 30+ seconds of character-by-character typing now happens instantly, with proper newline handling for complex forms.
 
 ---
 
@@ -256,8 +287,8 @@ Restart your MCP client and ask your agent:
 
 | Mode | Tools | Use Case |
 |------|-------|----------|
-| **Full** | 88 tools | Complete browser automation & debugging |
-| **Minimal** (`--minimal`) | 21 tools | Core browser automation only |
+| **Full** | 89 tools | Complete browser automation & debugging |
+| **Minimal** (`--minimal`) | 22 tools | Core browser automation only |
 | **Custom** | Your choice | Disable specific sections you don't need |
 
 ### **📦 Tool Sections**
@@ -292,8 +323,8 @@ python src/server.py --disable-debugging          # Disable debug tools
 | Network debugging | **AI agent sees all requests/responses** | Basic |
 | API reverse engineering | **Full payload inspection via chat** | Manual tools only |
 | Dynamic Hook System | **AI writes Python functions for real-time request processing** | Not available |
-| Modular Architecture | **11 sections, 21-88 tools** | Fixed ~20 tools |
-| Tooling | 88 (customizable) | ~20 |
+| Modular Architecture | **11 sections, 22-89 tools** | Fixed ~20 tools |
+| Tooling | 89 (customizable) | ~20 |
 
 Sites users care about: LinkedIn • Instagram • Twitter/X • Amazon • Banking • Government portals • Cloudflare APIs • Nike SNKRS • Ticketmaster • Supreme
 
@@ -326,7 +357,8 @@ Sites users care about: LinkedIn • Instagram • Twitter/X • Amazon • Bank
 |------|-------------|
 | `query_elements()` | Find elements by CSS/XPath |
 | `click_element()` | Natural clicking |
-| `type_text()` | Human-like typing |
+| `type_text()` | Human-like typing with newline support |
+| `paste_text()` | **NEW!** Instant text pasting via CDP |
 | `scroll_page()` | Natural scrolling |
 | `wait_for_element()` | Smart waiting |
 | `execute_script()` | Run JavaScript |

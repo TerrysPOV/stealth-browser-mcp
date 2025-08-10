@@ -404,7 +404,9 @@ async def type_text(
     selector: str,
     text: str,
     clear_first: bool = True,
-    delay_ms: int = 50
+    delay_ms: int = 50,
+    parse_newlines: bool = False,
+    shift_enter: bool = False
 ) -> bool:
     """
     Type text into an input field.
@@ -415,6 +417,8 @@ async def type_text(
         text (str): Text to type.
         clear_first (bool): Clear field before typing.
         delay_ms (int): Delay between keystrokes in milliseconds.
+        parse_newlines (bool): If True, parse \n as Enter key presses.
+        shift_enter (bool): If True, use Shift+Enter instead of Enter (for chat apps).
 
     Returns:
         bool: True if typed successfully.
@@ -424,7 +428,31 @@ async def type_text(
     tab = await browser_manager.get_tab(instance_id)
     if not tab:
         raise Exception(f"Instance not found: {instance_id}")
-    return await dom_handler.type_text(tab, selector, text, clear_first, delay_ms)
+    return await dom_handler.type_text(tab, selector, text, clear_first, delay_ms, parse_newlines, shift_enter)
+
+@section_tool("element-interaction")
+async def paste_text(
+    instance_id: str,
+    selector: str,
+    text: str,
+    clear_first: bool = True
+) -> bool:
+    """
+    Paste text instantly into an input field.
+
+    Args:
+        instance_id (str): Browser instance ID.
+        selector (str): CSS selector or XPath.
+        text (str): Text to paste.
+        clear_first (bool): Clear field before pasting.
+
+    Returns:
+        bool: True if pasted successfully.
+    """
+    tab = await browser_manager.get_tab(instance_id)
+    if not tab:
+        raise Exception(f"Instance not found: {instance_id}")
+    return await dom_handler.paste_text(tab, selector, text, clear_first)
 
 @section_tool("element-interaction")
 async def select_option(

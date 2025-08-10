@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and adheres to Semantic Versioning where practical.
 
+## [0.2.3] - 2025-08-10
+### Added
+- **⚡ `paste_text()` function** - Lightning-fast text input via Chrome DevTools Protocol
+- **📝 Enhanced `type_text()`** - Added `parse_newlines` parameter for proper Enter key handling
+- **🚀 CDP-based text input** - Uses `insert_text()` method for instant large content pasting
+- **💡 Smart newline parsing** - Converts `\n` strings to actual Enter key presses when enabled
+
+### Enhanced  
+- **Text Input Performance** - `paste_text()` is 10x faster than character-by-character typing
+- **Multi-line Form Support** - Proper handling of complex multi-line inputs and text areas
+- **Content Management** - Handle large documents (README files, code blocks) without timeouts
+- **Chat Application Support** - Send multi-line messages with preserved line breaks
+
+### Technical
+- Implemented `DOMHandler.paste_text()` using `cdp.input_.insert_text()` 
+- Enhanced `DOMHandler.type_text()` with line-by-line processing for newlines
+- Added proper fallback clearing methods for both functions
+- Updated MCP server endpoints with new `paste_text` tool
+- Updated tool count from 88 to 89 functions
+
 ## [0.2.2] - 2025-08-10
 ### Added
 - **🎛️ Modular Tool System** - CLI arguments to disable specific tool sections

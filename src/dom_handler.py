@@ -9,6 +9,7 @@ from models import ElementInfo, ElementAction
 from debug_logger import debug_logger
 
 
+
 class DOMHandler:
     """Handles DOM queries and element interactions."""
 
@@ -210,10 +211,12 @@ class DOMHandler:
         selector: str,
         text: str,
         clear_first: bool = True,
-        delay_ms: int = 50
+        delay_ms: int = 50,
+        parse_newlines: bool = False,
+        shift_enter: bool = False
     ) -> bool:
         """
-        Type text with human-like delays.
+        Type text with human-like delays and optional newline parsing.
 
         Args:
             tab (Tab): The browser tab object.
@@ -221,6 +224,8 @@ class DOMHandler:
             text (str): Text to type.
             clear_first (bool): Clear input before typing.
             delay_ms (int): Delay between keystrokes in milliseconds.
+            parse_newlines (bool): If True, parse \n as Enter key presses.
+            shift_enter (bool): If True, use Shift+Enter instead of Enter (for chat apps).
 
         Returns:
             bool: True if typing succeeded, False otherwise.
@@ -241,14 +246,125 @@ class DOMHandler:
                     await element.send_keys('\ue017')
                 await asyncio.sleep(0.1)
 
-            for char in text:
-                await element.send_keys(char)
-                await asyncio.sleep(delay_ms / 1000)
+            if parse_newlines:
+                from nodriver import cdp
+                lines = text.split('\n')
+                for i, line in enumerate(lines):
+                    for char in line:
+                        await element.send_keys(char)
+                        await asyncio.sleep(delay_ms / 1000)
+                    
+                    if i < len(lines) - 1:
+                        if shift_enter:
+                            await element.apply('''(elem) => {
+                                const start = elem.selectionStart;
+                                const end = elem.selectionEnd;
+                                const value = elem.value;
+                                elem.value = value.substring(0, start) + '\\n' + value.substring(end);
+                                elem.selectionStart = elem.selectionEnd = start + 1;
+                                
+                                elem.dispatchEvent(new KeyboardEvent('keydown', {
+                                    key: 'Enter',
+                                    code: 'Enter',
+                                    shiftKey: true,
+                                    bubbles: true
+                                }));
+                                elem.dispatchEvent(new Event('input', { bubbles: true }));
+                            }''')
+                        else:
+                            await element.apply('''(elem) => {
+                                const start = elem.selectionStart;
+                                const end = elem.selectionEnd;
+                                const value = elem.value;
+                                elem.value = value.substring(0, start) + '\\n' + value.substring(end);
+                                elem.selectionStart = elem.selectionEnd = start + 1;
+                                
+                                elem.dispatchEvent(new KeyboardEvent('keydown', {
+                                    key: 'Enter',
+                                    code: 'Enter',
+                                    bubbles: true
+                                }));
+                                elem.dispatchEvent(new Event('input', { bubbles: true }));
+                            }''')
+                        await asyncio.sleep(delay_ms / 1000)
+            else:
+                for char in text:
+                    await element.send_keys(char)
+                    await asyncio.sleep(delay_ms / 1000)
 
             return True
 
         except Exception as e:
             raise Exception(f"Failed to type text: {str(e)}")
+
+    @staticmethod
+    async def paste_text(
+        tab: Tab,
+        selector: str,
+        text: str,
+        clear_first: bool = True
+    ) -> bool:
+        """
+        Paste text instantly using nodriver's insert_text method.
+        This is much faster than typing character by character.
+
+        Args:
+            tab (Tab): The browser tab object.
+            selector (str): CSS selector for the input element.
+            text (str): Text to paste.
+            clear_first (bool): Clear input before pasting.
+
+        Returns:
+            bool: True if pasting succeeded, False otherwise.
+        """
+        from nodriver import cdp
+        
+        try:
+            element = await tab.select(selector)
+            if not element:
+                raise Exception(f"Element not found: {selector}")
+
+            await element.focus()
+            await asyncio.sleep(0.1)
+
+            if clear_first:
+                try:
+                    await element.apply("(elem) => { elem.value = ''; }")
+                except:
+                    await tab.send(cdp.input_.dispatch_key_event(
+                        "rawKeyDown", 
+                        modifiers=2,  # Ctrl
+                        key="a",
+                        code="KeyA",
+                        windows_virtual_key_code=65
+                    ))
+                    await tab.send(cdp.input_.dispatch_key_event(
+                        "keyUp", 
+                        modifiers=2,  # Ctrl
+                        key="a",
+                        code="KeyA",
+                        windows_virtual_key_code=65
+                    ))
+                    await tab.send(cdp.input_.dispatch_key_event(
+                        "rawKeyDown",
+                        key="Delete",
+                        code="Delete",
+                        windows_virtual_key_code=46
+                    ))
+                    await tab.send(cdp.input_.dispatch_key_event(
+                        "keyUp",
+                        key="Delete", 
+                        code="Delete",
+                        windows_virtual_key_code=46
+                    ))
+                await asyncio.sleep(0.1)
+
+            await tab.send(cdp.input_.insert_text(text))
+
+            return True
+
+        except Exception as e:
+            raise Exception(f"Failed to paste text: {str(e)}")
 
     @staticmethod
     async def select_option(
