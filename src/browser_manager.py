@@ -12,6 +12,8 @@ from debug_logger import debug_logger
 from models import BrowserInstance, BrowserState, BrowserOptions, PageState
 from persistent_storage import persistent_storage
 from dynamic_hook_system import dynamic_hook_system
+from platform_utils import get_platform_info
+from process_cleanup import process_cleanup
 
 
 class BrowserManager:
@@ -41,14 +43,27 @@ class BrowserManager:
         )
 
         try:
-            config = uc.Config()
-            config.headless = options.headless
-
-            if options.user_data_dir:
-                config.user_data_dir = options.user_data_dir
+            platform_info = get_platform_info()
+            debug_logger.log_info(
+                "browser_manager", 
+                "spawn_browser", 
+                f"Platform info: {platform_info['system']} | Root: {platform_info['is_root']} | Container: {platform_info['is_container']} | Sandbox: {options.sandbox}"
+            )
+            
+            config = uc.Config(
+                headless=options.headless,
+                user_data_dir=options.user_data_dir,
+                sandbox=options.sandbox
+            )
 
             browser = await uc.start(config=config)
             tab = browser.main_tab
+
+            if hasattr(browser, '_process') and browser._process:
+                process_cleanup.track_browser_process(instance_id, browser._process)
+            else:
+                debug_logger.log_warning("browser_manager", "spawn_browser", 
+                                       f"Browser {instance_id} has no process to track")
 
             if options.user_agent:
                 await tab.send(uc.cdp.emulation.set_user_agent_override(
@@ -185,6 +200,12 @@ class BrowserManager:
                         await browser.connection.send(cdp_browser.close())
                 except Exception:
                     pass
+
+                try:
+                    process_cleanup.kill_browser_process(instance_id)
+                except Exception as e:
+                    debug_logger.log_warning("browser_manager", "close_instance", 
+                                           f"Process cleanup failed for {instance_id}: {e}")
 
                 try:
                     await browser.stop()

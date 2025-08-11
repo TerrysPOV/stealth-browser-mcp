@@ -18,7 +18,7 @@ Supercharge any MCP-compatible AI agent with undetectable, real-browser automati
 [![Issues](https://img.shields.io/github/issues/vibheksoni/stealth-browser-mcp?style=flat-square)](https://github.com/vibheksoni/stealth-browser-mcp/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/7ETmqgTY6H)
-[![Tools](https://img.shields.io/badge/Tools-89-orange?style=flat-square)](#-toolbox)
+[![Tools](https://img.shields.io/badge/Tools-90-orange?style=flat-square)](#-toolbox)
 [![Success Rate](https://img.shields.io/badge/Success%20Rate-98.7%25-success?style=flat-square)](#-stealth-vs-playwright-mcp)
 [![Cloudflare Bypass](https://img.shields.io/badge/Cloudflare-Bypass-red?style=flat-square)](#-why-developers-star-this)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
@@ -45,7 +45,7 @@ Supercharge any MCP-compatible AI agent with undetectable, real-browser automati
 - 🏆 [Hall of Fame](HALL_OF_FAME.md) - Impossible automations made possible
 - 🥊 [Stealth vs Others](COMPARISON.md) - Why we dominate the competition  
 - 🔥 [Viral Examples](examples/claude_prompts.md) - Copy & paste prompts that blow minds
-- 🧰 [89 Tools](#toolbox) - Complete arsenal of browser automation
+- 🧰 [90 Tools](#toolbox) - Complete arsenal of browser automation
 - 🎥 [Live Demos](demo/) - See it bypass what others can't
 - 🤝 [Contributing](#contributing) & 💬 [Discord](https://discord.gg/7ETmqgTY6H)
 
@@ -199,7 +199,7 @@ python src/server.py --list-sections
 - `progressive-cloning` (10 tools) - Advanced element cloning
 - `cookies-storage` (3 tools) - Cookie and storage management
 - `tabs` (5 tools) - Tab management
-- `debugging` (6 tools) - Debug and system tools  
+- `debugging` (6 tools) - Debug and system tools (includes new environment validator)
 - `dynamic-hooks` (10 tools) - AI-powered network hooks
 
 > **💡 Pro Tip**: Use `--minimal` for lightweight deployments or `--disable-*` flags to exclude functionality you don't need!
@@ -223,6 +223,20 @@ Restart your MCP client and ask your agent:
 - **Solution**: The server will automatically download Chrome when first run
 - **No manual Chrome installation needed**
 
+**❌ "Failed to connect to browser" / Root user issues**
+- **Solution**: ✅ **FIXED in v0.2.4!** Auto-detects root/administrator and adds `--no-sandbox` automatically
+- **Manual fix**: Add `"args": ["--no-sandbox", "--disable-setuid-sandbox"]` to spawn_browser calls
+- **Diagnostic tool**: Use `validate_browser_environment_tool()` to check your environment
+
+**❌ "Input validation error" with args parameter**
+- **Solution**: ✅ **FIXED in v0.2.4!** Now accepts both JSON arrays and JSON strings:
+  - `"args": ["--no-sandbox"]` (preferred)
+  - `"args": "[\"--no-sandbox\"]"` (also works)
+
+**❌ Container/Docker issues**
+- **Solution**: ✅ **FIXED in v0.2.4!** Auto-detects containers and adds required arguments
+- **Manual fix**: Add `"args": ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]`
+
 **❌ "claude mcp add-json" command not found**
 - **Solution**: Make sure you have Claude Code CLI installed
 - **Alternative**: Use manual configuration method above
@@ -242,7 +256,7 @@ Restart your MCP client and ask your agent:
 - **🎛️ Modular architecture — disable unused sections, run minimal installs**
 - **⚡ Lightweight deployments — from 22 core tools to full 89-tool arsenal**
 - Clean MCP integration — no custom brokers or wrappers needed
-- 89 focused tools organized into 11 logical sections
+- 90 focused tools organized into 11 logical sections
 
 > Built on [nodriver](https://github.com/ultrafunkamsterdam/nodriver) + Chrome DevTools Protocol + FastMCP
 
@@ -279,6 +293,52 @@ await type_text(instance_id, "textarea", "Line 1\nLine 2\nLine 3", parse_newline
 
 ---
 
+## 🛡️ **NEW: Cross-Platform Compatibility & Root Support**
+
+**Latest Enhancement (v0.2.4)**: Automatic platform detection and privilege handling that eliminates common browser spawning issues:
+
+### ⚙️ **Smart Environment Detection**
+```python
+# NEW: Automatic privilege detection and sandbox handling
+validate_browser_environment_tool()  # Diagnose your environment
+```
+- **Root/Administrator Detection**: Auto-adds `--no-sandbox` when running as root
+- **Container Detection**: Detects Docker/Kubernetes and adds container-specific args
+- **Platform-Aware**: Handles Windows, Linux, macOS differences automatically
+- **Chrome Discovery**: Automatically finds Chrome/Chromium installation
+
+### 🔧 **Flexible Args Handling**
+```json
+// All these formats now work:
+{"args": ["--disable-web-security"]}                    // JSON array
+{"args": "[\"--disable-web-security\"]"}              // JSON string  
+{"args": "--disable-web-security"}                     // Single string
+```
+- **Multiple Format Support**: Accepts JSON arrays, JSON strings, or single strings
+- **Smart Parsing**: Tries JSON first, falls back gracefully
+- **Backward Compatible**: Existing configurations continue to work
+
+### 📊 **Built-in Diagnostics**
+```bash
+# NEW: Environment validation tool
+validate_browser_environment_tool()
+# Returns: platform info, Chrome path, issues, warnings, recommendations
+```
+- **Pre-flight Checks**: Validates environment before browser launch
+- **Issue Detection**: Identifies common problems and provides solutions
+- **Platform Insights**: Detailed system information for debugging
+
+### 🎯 **Why This Matters**
+- **Root User Support**: No more "Failed to connect to browser" on Linux servers
+- **Container Compatibility**: Works in Docker, Kubernetes, and serverless environments
+- **Windows Administrator**: Handles UAC and privilege escalation scenarios
+- **Error Prevention**: Catches issues before they cause failures
+- **Better Debugging**: Clear diagnostics for troubleshooting
+
+**Real-world impact**: Browser spawning now works reliably across all environments - from local development to production containers to CI/CD pipelines.
+
+---
+
 ## 🎛️ **Modular Architecture**
 
 **NEW in v0.2.2**: Stealth Browser MCP now supports modular tool loading! Choose exactly what functionality you need:
@@ -287,7 +347,7 @@ await type_text(instance_id, "textarea", "Line 1\nLine 2\nLine 3", parse_newline
 
 | Mode | Tools | Use Case |
 |------|-------|----------|
-| **Full** | 89 tools | Complete browser automation & debugging |
+| **Full** | 90 tools | Complete browser automation & debugging |
 | **Minimal** (`--minimal`) | 22 tools | Core browser automation only |
 | **Custom** | Your choice | Disable specific sections you don't need |
 
@@ -324,7 +384,7 @@ python src/server.py --disable-debugging          # Disable debug tools
 | API reverse engineering | **Full payload inspection via chat** | Manual tools only |
 | Dynamic Hook System | **AI writes Python functions for real-time request processing** | Not available |
 | Modular Architecture | **11 sections, 22-89 tools** | Fixed ~20 tools |
-| Tooling | 89 (customizable) | ~20 |
+| Tooling | 90 (customizable) | ~20 |
 
 Sites users care about: LinkedIn • Instagram • Twitter/X • Amazon • Banking • Government portals • Cloudflare APIs • Nike SNKRS • Ticketmaster • Supreme
 
@@ -524,6 +584,7 @@ Sites users care about: LinkedIn • Instagram • Twitter/X • Amazon • Bank
 | `clear_debug_view()` | Clear debug logs |
 | `export_debug_logs()` | Export logs (JSON/pickle/gzip) |
 | `get_debug_lock_status()` | Debug lock status |
+| `validate_browser_environment_tool()` | **NEW!** Diagnose platform issues & browser compatibility |
 
 </details>
 

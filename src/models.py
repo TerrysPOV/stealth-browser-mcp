@@ -92,7 +92,7 @@ class BrowserOptions(BaseModel):
     block_resources: List[str] = Field(default_factory=list, description="Resource types to block")
     extra_headers: Dict[str, str] = Field(default_factory=dict, description="Extra HTTP headers")
     user_data_dir: Optional[str] = Field(default=None, description="Path to user data directory")
-    args: List[str] = Field(default_factory=list, description="Additional browser arguments")
+    sandbox: bool = Field(default=True, description="Enable browser sandbox mode")
 
 
 class NavigationOptions(BaseModel):
@@ -154,7 +154,6 @@ class NetworkHook(BaseModel):
     status: HookStatus = Field(default=HookStatus.ACTIVE)
     priority: int = Field(default=100, description="Hook priority (lower = higher priority)")
     
-    # Action-specific parameters
     modifications: Dict[str, Any] = Field(default_factory=dict, description="Modifications to apply")
     redirect_url: Optional[str] = Field(default=None, description="URL to redirect to")
     custom_response: Optional[Dict[str, Any]] = Field(default=None, description="Custom response data")
@@ -175,7 +174,6 @@ class PendingRequest(BaseModel):
     resource_type: Optional[str] = None
     stage: HookStage = Field(description="Current interception stage")
     
-    # Hook processing
     matched_hooks: List[str] = Field(default_factory=list, description="IDs of hooks that matched")
     modifications: Dict[str, Any] = Field(default_factory=dict, description="Accumulated modifications")
     status: str = Field(default="pending", description="Processing status")

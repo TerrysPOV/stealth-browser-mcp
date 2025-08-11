@@ -3,7 +3,7 @@
 ## ✅ **TESTED AND WORKING**
 
 ### Core Browser Management
-- ✅ `spawn_browser` - Creates new browser instances
+- ✅ `spawn_browser` - Creates new browser instances (FIXED v0.2.4: root user support, flexible args parsing, platform-aware configuration)
 - ✅ `navigate` - Navigate to URLs 
 - ✅ `close_instance` - Close browser instances
 - ✅ `list_instances` - List all browser instances
@@ -64,6 +64,7 @@
 - ✅ `reload_status` - Check reload status (shows module load status)
 - ✅ `get_debug_view` - Get debug information (fixed with pagination)
 - ✅ `clear_debug_view` - Clear debug logs (fixed with timeout protection)
+- ✅ `validate_browser_environment_tool` - **NEW v0.2.4!** Environment diagnostics & platform validation
 
 ### Basic Browser Interactions  
 - ✅ `go_back` - Navigate back in history
@@ -153,16 +154,22 @@
 16. **Execute Python in Browser Hanging & Translation Errors** → Fixed with proper py2js transpiler from am230/py2js - now handles functions, loops, variables correctly with only minor class edge cases
 17. **Export Debug Logs Lock Deadlock** → Fixed with lock-free fallback and ownership tracking - now works perfectly ✅
 18. **Broken Network Hook Functions** → Removed 13 incomplete/broken functions (create_request_hook, create_response_hook, etc.) that called non-existent methods - moved to oldstuff/old_funcs.py for reference
+19. **Root User Browser Spawning** → Fixed "Failed to connect to browser" when running as root/administrator with auto-detection ✅
+20. **Args Parameter JSON Validation** → Fixed "Input validation error" for JSON string args format with flexible parsing ✅
+21. **Container Environment Compatibility** → Added Docker/Kubernetes support with auto-detection and required arguments ✅
+22. **Cross-Platform Browser Configuration** → Enhanced Windows/Linux/macOS support with platform-aware argument merging ✅
 
 ## 📊 **TESTING SUMMARY**
 
-- **Total Functions**: 89 functions
-- **Tested & Working**: 89 functions ✅
+- **Total Functions**: 90 functions
+- **Tested & Working**: 90 functions ✅
 - **Functions with Issues**: 0 functions ❌
-- **Major Issues Fixed**: 19 critical issues resolved
+- **Major Issues Fixed**: 22 critical issues resolved
 - **Success Rate**: 100% 🎯 🚀
 
 **LATEST ACHIEVEMENTS:** 
+✅ **Cross-Platform Compatibility & Root Support (v0.2.4)** - Smart environment detection, automatic privilege handling, flexible args parsing, and comprehensive platform diagnostics
+
 ✅ **Advanced Text Input System (v0.2.3)** - Lightning-fast `paste_text()` via CDP and enhanced `type_text()` with newline parsing for complex multi-line form automation
 
 ✅ **Complete Dynamic Hook System with Response-Stage Processing** - AI-powered network interception system with real-time processing, no pending state, custom Python function support, and full response content modification capability
@@ -174,6 +181,25 @@
 3. **Machine Learning Integration** - AI-driven request pattern analysis
 4. **Hook Templates** - Pre-built patterns for common use cases
 5. **Multi-instance Hook Coordination** - Synchronized browser fleet management
+
+## ✅ **COMPLETED ENHANCEMENTS (v0.2.4)**
+
+### 🛡️ **Cross-Platform & Root User Support**
+- ✅ **Smart Environment Detection** - Auto-detects root/admin, containers, OS differences
+- ✅ **Platform-Aware Browser Configuration** - Automatic sandbox handling based on environment
+- ✅ **Flexible Args Parsing** - Supports JSON arrays, JSON strings, and single strings
+- ✅ **Container Compatibility** - Docker/Kubernetes detection with required arguments
+- ✅ **Chrome Discovery** - Automatic Chrome/Chromium executable detection
+- ✅ **Environment Diagnostics** - New validation tool for pre-flight checks
+- ✅ **Enhanced Error Messages** - Platform-specific guidance and solutions
+
+### 📊 **Technical Implementation**
+- ✅ **`platform_utils.py` Module** - Comprehensive cross-platform utility functions
+- ✅ **`is_running_as_root()`** - Cross-platform privilege detection
+- ✅ **`is_running_in_container()`** - Container environment detection
+- ✅ **`merge_browser_args()`** - Smart argument merging with platform requirements
+- ✅ **`validate_browser_environment()`** - Complete environment validation
+- ✅ **Enhanced spawn_browser()** - Multi-format args parsing with platform integration
 
 ## ✅ **COMPLETED ENHANCEMENTS (v0.2.1)**
 

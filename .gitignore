@@ -240,3 +240,4 @@ old_network_hook_system/
 element_clones/
 testing/
 .claude
+requirements_frozen.txt

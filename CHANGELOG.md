@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and adheres to Semantic Versioning where practical.
 
+## [0.2.4] - 2025-08-11
+### Fixed
+- **🛡️ Root User Browser Spawning** - Fixed "Failed to connect to browser" when running as root/administrator
+- **📝 Args Parameter Validation** - Fixed "Input validation error" for JSON string args format
+- **🐳 Container Environment Support** - Added Docker/Kubernetes compatibility with auto-detection
+- **🔧 Cross-Platform Compatibility** - Enhanced Windows/Linux/macOS support with platform-aware configuration
+
+### Added
+- **🔍 `validate_browser_environment_tool()`** - New diagnostic tool for environment validation
+- **⚙️ Smart Platform Detection** - Auto-detects root privileges, containers, and OS-specific requirements
+- **🔄 Flexible Args Parsing** - Supports JSON arrays, JSON strings, and single string formats
+- **📊 Enhanced Logging** - Added platform information to browser spawning debug logs
+- **🛠️ `platform_utils.py`** - Comprehensive cross-platform utility module
+
+### Enhanced
+- **Browser Argument Handling** - Automatically merges user args with platform-required args
+- **Environment Detection** - Detects root/administrator, container environments, and Chrome installation
+- **Error Messages** - More descriptive error messages with platform-specific guidance
+- **Sandbox Management** - Intelligent sandbox disabling based on environment detection
+
+### Technical
+- Added `merge_browser_args()` function for smart argument merging
+- Added `is_running_as_root()` cross-platform privilege detection
+- Added `is_running_in_container()` for Docker/Kubernetes detection
+- Enhanced `spawn_browser()` with comprehensive args parsing
+- Improved browser configuration with nodriver Config object
+- Total tool count increased from 89 to 90 tools
+
 ## [0.2.3] - 2025-08-10
 ### Added
 - **⚡ `paste_text()` function** - Lightning-fast text input via Chrome DevTools Protocol

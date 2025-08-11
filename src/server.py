@@ -9,6 +9,7 @@ import signal
 import sys
 import tempfile
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -36,6 +37,8 @@ from dynamic_hook_ai_interface import dynamic_hook_ai
 from persistent_storage import persistent_storage
 from progressive_element_cloner import progressive_element_cloner
 from response_handler import response_handler
+from platform_utils import validate_browser_environment, get_platform_info
+from process_cleanup import process_cleanup
 
 DISABLED_SECTIONS = set()
 
@@ -70,6 +73,12 @@ async def app_lifespan(server):
             debug_logger.log_info("server", "cleanup", "All browser instances closed")
         except Exception as e:
             debug_logger.log_error("server", "cleanup", e)
+        
+        try:
+            process_cleanup._cleanup_all_tracked()
+            debug_logger.log_info("server", "cleanup", "Process cleanup complete")
+        except Exception as e:
+            debug_logger.log_error("server", "cleanup", f"Process cleanup failed: {e}")
         try:
             persistent_instances = persistent_storage.list_instances()
             if persistent_instances.get("instances"):
@@ -117,7 +126,7 @@ async def spawn_browser(
     block_resources: List[str] = None,
     extra_headers: Dict[str, str] = None,
     user_data_dir: Optional[str] = None,
-    args: List[str] = None
+    sandbox: Optional[Any] = None
 ) -> Dict[str, Any]:
     """
     Spawn a new browser instance.
@@ -131,12 +140,23 @@ async def spawn_browser(
         block_resources (List[str]): List of resource types to block (e.g., ['image', 'font', 'stylesheet']).
         extra_headers (Dict[str, str]): Additional HTTP headers.
         user_data_dir (Optional[str]): Path to user data directory for persistent sessions.
-        args (List[str]): Additional browser command-line arguments.
+        sandbox (Optional[Any]): Enable browser sandbox. Accepts bool, string ('true'/'false'), int (1/0), or None for auto-detect.
 
     Returns:
         Dict[str, Any]: Instance information including instance_id.
     """
     try:
+        from platform_utils import is_running_as_root, is_running_in_container
+        
+        if sandbox is None:
+            sandbox = not (is_running_as_root() or is_running_in_container())
+        elif isinstance(sandbox, str):
+            sandbox = sandbox.lower() in ('true', '1', 'yes', 'on', 'enabled')
+        elif isinstance(sandbox, int):
+            sandbox = bool(sandbox)
+        elif not isinstance(sandbox, bool):
+            sandbox = bool(sandbox)
+        
         options = BrowserOptions(
             headless=headless,
             user_agent=user_agent,
@@ -146,7 +166,7 @@ async def spawn_browser(
             block_resources=block_resources or [],
             extra_headers=extra_headers or {},
             user_data_dir=user_data_dir,
-            args=args or []
+            sandbox=sandbox
         )
         instance = await browser_manager.spawn_browser(options)
         tab = await browser_manager.get_tab(instance.instance_id)
@@ -628,7 +648,7 @@ async def take_screenshot(
     full_page: bool = False,
     format: str = "png",
     file_path: Optional[str] = None
-) -> str:
+) -> Union[str, Dict[str, Any]]:
     """
     Take a screenshot of the page.
 
@@ -639,27 +659,70 @@ async def take_screenshot(
         file_path (Optional[str]): Optional file path to save screenshot to.
 
     Returns:
-        str: File path if file_path provided, otherwise base64 encoded image data.
+        Union[str, Dict]: File path if file_path provided, otherwise optimized base64 data or file info dict.
     """
+    from PIL import Image
+    import io
+    
     tab = await browser_manager.get_tab(instance_id)
     if not tab:
         raise Exception(f"Instance not found: {instance_id}")
+    
     if file_path:
         save_path = Path(file_path)
         save_path.parent.mkdir(parents=True, exist_ok=True)
         await tab.save_screenshot(save_path)
         return f"Screenshot saved. AI agents should use the Read tool to view this image: {str(save_path.absolute())}"
-    else:
-        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
-            tmp_path = Path(tmp_file.name)
-        try:
-            await tab.save_screenshot(tmp_path)
-            with open(tmp_path, 'rb') as f:
-                screenshot_bytes = f.read()
-            return base64.b64encode(screenshot_bytes).decode('utf-8')
-        finally:
-            if tmp_path.exists():
-                os.unlink(tmp_path)
+    
+    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp_file:
+        tmp_path = Path(tmp_file.name)
+    
+    try:
+        await tab.save_screenshot(tmp_path)
+        
+        with Image.open(tmp_path) as img:
+            if img.mode in ('RGBA', 'LA', 'P') and format.lower() == 'jpeg':
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                background.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
+                img = background
+            
+            output_buffer = io.BytesIO()
+            
+            if format.lower() == 'jpeg':
+                img.save(output_buffer, format='JPEG', quality=85, optimize=True)
+            else:
+                img.save(output_buffer, format='PNG', optimize=True)
+            
+            compressed_bytes = output_buffer.getvalue()
+            
+            base64_size = len(compressed_bytes) * 1.33
+            estimated_tokens = int(base64_size / 4)
+            
+            if estimated_tokens > 20000:
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                screenshot_filename = f"screenshot_{timestamp}_{instance_id[:8]}.{format.lower()}"
+                screenshot_path = response_handler.clone_dir / screenshot_filename
+                
+                with open(screenshot_path, 'wb') as f:
+                    f.write(compressed_bytes)
+                
+                file_size_kb = len(compressed_bytes) / 1024
+                return {
+                    "file_path": str(screenshot_path),
+                    "filename": screenshot_filename,
+                    "file_size_kb": round(file_size_kb, 2),
+                    "estimated_tokens": estimated_tokens,
+                    "reason": "Screenshot too large, automatically saved to file",
+                    "message": f"Screenshot saved. AI agents should use the Read tool to view this image: {str(screenshot_path)}"
+                }
+            
+            return base64.b64encode(compressed_bytes).decode('utf-8')
+            
+    finally:
+        if tmp_path.exists():
+            os.unlink(tmp_path)
 
 
 @section_tool("network-debugging")
@@ -1522,6 +1585,26 @@ async def reload_status() -> str:
         return "\n".join(modules_info)
     except Exception as e:
         return f"Error checking module status: {str(e)}"
+
+
+@section_tool("debugging")
+async def validate_browser_environment_tool() -> Dict[str, Any]:
+    """
+    Validate browser environment and diagnose potential issues.
+    
+    Returns:
+        Dict[str, Any]: Environment validation results with platform info and recommendations
+    """
+    try:
+        return validate_browser_environment()
+    except Exception as e:
+        return {
+            "error": str(e),
+            "platform_info": get_platform_info(),
+            "is_ready": False,
+            "issues": [f"Validation failed: {str(e)}"],
+            "warnings": []
+        }
 
 
 @section_tool("progressive-cloning")
@@ -2538,7 +2621,7 @@ def validate_hook_function(function_code: str) -> Dict[str, Any]:
 if __name__ == "__main__":
     import argparse
     
-    parser = argparse.ArgumentParser(description="Stealth Browser MCP Server with 88 tools")
+    parser = argparse.ArgumentParser(description="Stealth Browser MCP Server with 90 tools")
     parser.add_argument("--transport", choices=["stdio", "http"], default="stdio",
                       help="Transport protocol to use")
     parser.add_argument("--port", type=int, default=int(os.getenv("PORT", 8000)),
@@ -2587,7 +2670,7 @@ if __name__ == "__main__":
         print("  progressive-cloning: Advanced element cloning system (10 tools)")
         print("  cookies-storage: Cookie and storage management (3 tools)")
         print("  tabs: Tab management (5 tools)")
-        print("  debugging: Debug and system tools (5 tools)")
+        print("  debugging: Debug and system tools (6 tools)")
         print("  dynamic-hooks: AI-powered network hook system (12 tools)")
         print("\nUse --disable-<section-name> to disable specific sections")
         print("Use --minimal to enable only core functionality")
