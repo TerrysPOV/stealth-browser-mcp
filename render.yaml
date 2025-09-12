@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: stealth-browser-mcp
+    runtime: docker
+    repo: https://github.com/TerrysPOV/stealth-browser-mcp.git
+    plan: starter
+    region: oregon
+    branch: master
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    numInstances: 1
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
+      - key: PORT
+        value: "8000"
+      - key: LOG_LEVEL
+        value: "INFO"
+    healthCheckPath: /mcp
+    autoDeploy: true
