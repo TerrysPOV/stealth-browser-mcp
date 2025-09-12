@@ -21,6 +21,30 @@ from cdp_element_cloner import CDPElementCloner
 from cdp_function_executor import CDPFunctionExecutor
 from comprehensive_element_cloner import comprehensive_element_cloner
 from debug_logger import debug_logger
+
+# ---- MCP stdio safety: route all logs to STDERR (never STDOUT) ----
+import logging
+
+# Configure logging to STDERR only
+logging.basicConfig(
+    level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO),
+    stream=sys.stderr,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+
+def _mcp_log_to_stderr(*args, **kwargs):
+    try:
+        # Join parts into a readable one-line message
+        msg = " ".join(str(a) for a in args)
+    except Exception:
+        msg = " ".join(repr(a) for a in args)
+    logging.info(msg)
+
+# Monkey‑patch debug_logger to never print to stdout
+for _name in ("log_info", "log_error", "log_warning", "log_debug"):
+    if hasattr(debug_logger, _name):
+        setattr(debug_logger, _name, (lambda n: (lambda *a, **k: _mcp_log_to_stderr(n, *a)))(_name))
+# ---- end MCP stdio safety block ----
 from dom_handler import DOMHandler
 from element_cloner import element_cloner
 from file_based_element_cloner import file_based_element_cloner
