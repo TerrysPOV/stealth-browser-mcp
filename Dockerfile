@@ -47,5 +47,5 @@ ENV PORT=8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -s http://localhost:$PORT/mcp -o /dev/null || exit 1
 
-# Start the MCP server with SSE transport for HTTP (reads PORT env var automatically)
-CMD ["python", "src/server.py", "--transport", "http", "--host", "0.0.0.0", "--port", "8000"]
+# Start the MCP server - FastMCP auto-detects HTTP mode from PORT env var
+CMD ["python", "src/server.py"]

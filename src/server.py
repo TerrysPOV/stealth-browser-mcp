@@ -2733,8 +2733,6 @@ if __name__ == "__main__":
     if DISABLED_SECTIONS:
         print(f"Disabled tool sections: {', '.join(sorted(DISABLED_SECTIONS))}")
     
-    if args.transport == "http":
-        # Run with HTTP transport - FastMCP will handle the SSE endpoints
-        mcp.run(host=args.host, port=args.port)
-    else:
-        mcp.run(transport="stdio")
+    # FastMCP will automatically detect transport based on environment
+    # When PORT env var is set (like on Render), it runs as HTTP server
+    mcp.run()
