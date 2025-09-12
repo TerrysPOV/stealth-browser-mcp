@@ -2734,6 +2734,7 @@ if __name__ == "__main__":
         print(f"Disabled tool sections: {', '.join(sorted(DISABLED_SECTIONS))}")
     
     if args.transport == "http":
-        mcp.run(transport="sse", host=args.host, port=args.port)
+        # Run with HTTP transport - FastMCP will handle the SSE endpoints
+        mcp.run(host=args.host, port=args.port)
     else:
         mcp.run(transport="stdio")
