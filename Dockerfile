@@ -1,7 +1,7 @@
 # Use Python 3.11 slim image for smaller size
 FROM python:3.11-slim
 
-# Install system dependencies for Chrome, browser automation, and git (needed for py2js)
+# Install system dependencies including git (needed for py2js installation)
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -26,8 +26,11 @@ WORKDIR /app
 # Copy requirements first for better Docker layer caching
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Re-install git temporarily for pip install (needed for git+ dependencies)
+RUN apt-get update && apt-get install -y git \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy application code
 COPY . .
