@@ -2739,7 +2739,6 @@ if __name__ == "__main__":
     import os
     if os.getenv("PORT"):
         # Add health check route for Render
-        from fastapi import FastAPI
         from fastapi.responses import JSONResponse
         
         # Get the underlying FastAPI app
