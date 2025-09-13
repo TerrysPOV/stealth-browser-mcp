@@ -140,11 +140,7 @@ network_interceptor = NetworkInterceptor()
 dom_handler = DOMHandler()
 cdp_function_executor = CDPFunctionExecutor()
 
-# Add health check endpoint for Render deployment
-@mcp.get("/health")
-async def health_check():
-    """Health check endpoint for Render deployment."""
-    return {"status": "healthy", "service": "stealth-browser-mcp"}
+# Health check will be handled by FastMCP's built-in endpoints
 
 @section_tool("browser-management")
 async def spawn_browser(
