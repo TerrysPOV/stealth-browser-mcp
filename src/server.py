@@ -117,6 +117,9 @@ async def app_lifespan(server):
             debug_logger.log_error("server", "storage_cleanup", e)
         debug_logger.log_info("server", "shutdown", "Browser Automation MCP Server shutdown complete")
 
+# Add health check endpoint using custom_route
+from starlette.responses import JSONResponse
+
 mcp = FastMCP(
     name="Browser Automation MCP",
     instructions="""
@@ -140,7 +143,10 @@ network_interceptor = NetworkInterceptor()
 dom_handler = DOMHandler()
 cdp_function_executor = CDPFunctionExecutor()
 
-# Health check will be handled by FastMCP's built-in endpoints
+# Add health check endpoint for Render
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request):
+    return JSONResponse({"status": "healthy", "service": "stealth-browser-mcp"})
 
 @section_tool("browser-management")
 async def spawn_browser(
