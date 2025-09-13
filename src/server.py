@@ -2739,10 +2739,11 @@ if __name__ == "__main__":
     import os
     if os.getenv("PORT"):
         # Add health check route for Render
+        from fastapi import FastAPI
         from fastapi.responses import JSONResponse
         
-        # Get the underlying FastAPI app
-        app = mcp._get_asgi_app()
+        # Get the SSE app from FastMCP
+        app = mcp.sse_app()
         
         @app.get("/mcp")
         async def health_check():
