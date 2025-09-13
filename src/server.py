@@ -2735,23 +2735,13 @@ if __name__ == "__main__":
     if DISABLED_SECTIONS:
         print(f"Disabled tool sections: {', '.join(sorted(DISABLED_SECTIONS))}")
     
-    # Add custom /mcp endpoint for Render health checks
+    # Configure for Render deployment or local development
     import os
     if os.getenv("PORT"):
-        # Add health check route for Render
-        from fastapi import FastAPI
-        from fastapi.responses import JSONResponse
-        
-        # Get the SSE app from FastMCP
-        app = mcp.sse_app()
-        
-        @app.get("/mcp")
-        async def health_check():
-            return JSONResponse({"status": "healthy", "service": "stealth-browser-mcp", "transport": "sse"})
-        
         # Run as HTTP server on Render
         port = int(os.getenv("PORT", 8000))
         print(f"Starting MCP server on port {port}...")
+        # FastMCP automatically handles health checks at /health and SSE at /sse
         mcp.run(transport="sse", port=port, host="0.0.0.0")
     else:
         # Run as stdio for local development

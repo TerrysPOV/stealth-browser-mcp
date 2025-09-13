@@ -9,6 +9,7 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     numInstances: 1
+    healthCheckPath: /health
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
