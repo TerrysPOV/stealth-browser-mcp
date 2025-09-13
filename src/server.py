@@ -143,10 +143,14 @@ network_interceptor = NetworkInterceptor()
 dom_handler = DOMHandler()
 cdp_function_executor = CDPFunctionExecutor()
 
-# Add health check endpoint for Render
+# Add health check endpoints for Render
 @mcp.custom_route("/health", methods=["GET"])
 async def health_check(request):
     return JSONResponse({"status": "healthy", "service": "stealth-browser-mcp"})
+
+@mcp.custom_route("/mcp", methods=["GET"])
+async def mcp_health_check(request):
+    return JSONResponse({"status": "healthy", "service": "stealth-browser-mcp", "endpoint": "mcp"})
 
 @section_tool("browser-management")
 async def spawn_browser(
