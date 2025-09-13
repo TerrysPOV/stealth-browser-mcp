@@ -2735,10 +2735,20 @@ if __name__ == "__main__":
     if DISABLED_SECTIONS:
         print(f"Disabled tool sections: {', '.join(sorted(DISABLED_SECTIONS))}")
     
-    # Run FastMCP in HTTP mode when PORT is set (Render deployment)
-    # Otherwise run in stdio mode (local development)
+    # Add custom /mcp endpoint for Render health checks
     import os
     if os.getenv("PORT"):
+        # Add health check route for Render
+        from fastapi import FastAPI
+        from fastapi.responses import JSONResponse
+        
+        # Get the underlying FastAPI app
+        app = mcp._get_asgi_app()
+        
+        @app.get("/mcp")
+        async def health_check():
+            return JSONResponse({"status": "healthy", "service": "stealth-browser-mcp", "transport": "sse"})
+        
         # Run as HTTP server on Render
         port = int(os.getenv("PORT", 8000))
         print(f"Starting MCP server on port {port}...")
