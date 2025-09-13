@@ -26,11 +26,9 @@ WORKDIR /app
 # Copy requirements first for better Docker layer caching
 COPY requirements.txt .
 
-# Re-install git temporarily for pip install (needed for git+ dependencies)
-RUN apt-get update && apt-get install -y git \
-    && pip install --no-cache-dir -r requirements.txt \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Install Python dependencies (git already installed above)
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
