@@ -10,6 +10,12 @@
 
 Supercharge any MCP-compatible AI agent with undetectable, real-browser automation. No CAPTCHAs. No blocks. Just results.
 
+## 🌐 Live Deployment
+✅ **Production Ready**: https://stealth-browser-mcp.onrender.com  
+🔍 **Health Check**: `/mcp` endpoint  
+📡 **Transport**: Server-Sent Events (SSE)  
+🚀 **Ready for**: OpenAI Playground, Claude, and other MCP clients
+
 > **⚡ 30-second setup • 🛡️ Undetectable by design • 🏆 98.7% success rate on protected sites • 🕵️ Full network debugging via AI chat**
 
 [![MCP](https://img.shields.io/badge/MCP-Claude-blue?style=flat-square)](https://modelcontextprotocol.io)
