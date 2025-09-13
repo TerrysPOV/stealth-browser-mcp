@@ -18,5 +18,5 @@ services:
         value: "8000"
       - key: LOG_LEVEL
         value: "INFO"
-    healthCheckPath: /mcp
+    healthCheckPath: /sse
     autoDeploy: true
