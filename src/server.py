@@ -2733,6 +2733,14 @@ if __name__ == "__main__":
     if DISABLED_SECTIONS:
         print(f"Disabled tool sections: {', '.join(sorted(DISABLED_SECTIONS))}")
     
-    # FastMCP will automatically detect transport based on environment
-    # When PORT env var is set (like on Render), it runs as HTTP server
-    mcp.run()
+    # Run FastMCP in HTTP mode when PORT is set (Render deployment)
+    # Otherwise run in stdio mode (local development)
+    import os
+    if os.getenv("PORT"):
+        # Run as HTTP server on Render
+        port = int(os.getenv("PORT", 8000))
+        print(f"Starting MCP server on port {port}...")
+        mcp.run(transport="sse", port=port, host="0.0.0.0")
+    else:
+        # Run as stdio for local development
+        mcp.run(transport="stdio")
